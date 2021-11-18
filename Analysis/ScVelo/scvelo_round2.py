@@ -75,3 +75,6 @@ scv.pl.scatter(adata, color='latent_time', color_map='gnuplot', size=80, basis='
 
 adata.write('./write/scvelo_analysis_contamination_cleaned.h5ad')
 adata.obs.to_csv('structure-identity_scvelo_metadata_contamination_cleaned.csv')
+
+top_genes = adata.var['fit_likelihood'].sort_values(ascending=False).index[:100]
+scv.pl.heatmap(adata, var_names=top_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True)
