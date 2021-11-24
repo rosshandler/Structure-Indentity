@@ -94,7 +94,7 @@ seurat_anchors <- FindIntegrationAnchors(object.list = seurat_list, normalizatio
     
 seurat_integrated <- IntegrateData(anchorset = seurat_anchors, normalization.method = "SCT")
 
-## Label transfer
+### Label transfer
 for (i in 1:length(x = seurat_list)) {
    seurat_list[[i]] <- NormalizeData(object = seurat_list[[i]], verbose = TRUE)
    seurat_list[[i]] <- FindVariableFeatures(object = seurat_list[[i]], selection.method = "vst", 
