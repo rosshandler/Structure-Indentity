@@ -42,7 +42,7 @@ population_labels <- c(
   "Per"   = "Pericyte",
   "ExN"   = "Migrating excitatory",
   "IP"    = "IP",
-  "-"     = "Bellow threshold"
+  "-"     = "Below threshold"
 )
  
 setwd("/data1/ivanir/HumaFetalNeocortex2019/data")
