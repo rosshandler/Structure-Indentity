@@ -1,9 +1,13 @@
 ## Load packages
+library(miloR)
 library(scran)
 library(scater)
 library(Matrix)
 library(Seurat)
 library(ggplot2)
+library(patchwork)
+
+library("scProportionTest")
 
 ## Load plotting colours
 
