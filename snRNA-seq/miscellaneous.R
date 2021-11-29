@@ -102,3 +102,124 @@ population_colours_manuscript <- c(
   "Mature excitatory neurons"="#d3b000"
 )
 
+## Modifying milo plotting colours
+library(igraph)
+library(ggraph)
+
+#' @importFrom igraph is_igraph
+.valid_graph <- function(x){
+    # check for a valid graph
+    if(isTRUE(is_igraph(x))){
+        TRUE
+    } else{
+        FALSE
+    }
+}
+.valid_graph <- function(x){
+    # check for a valid graph
+    if(isTRUE(is_igraph(x))){
+        TRUE
+    } else{
+        FALSE
+    }
+}
+plotNhoodGraph_adapted <- function (x, layout = "UMAP", colour_by = NA, subset.nhoods = NULL, 
+    size_range = c(0.5, 3), node_stroke = 0.3, ...) 
+{
+    if (!.valid_graph(nhoodGraph(x))) {
+        stop("Not a valid Milo object - neighbourhood graph is missing. Please run buildNhoodGraph() first.")
+    }
+    if (is.character(layout)) {
+        if (!layout %in% names(reducedDims(x))) {
+            stop(layout, "isn't in readucedDim(x) - choose a different layout")
+        }
+    }
+    nh_graph <- nhoodGraph(x)
+    if (!is.null(subset.nhoods)) {
+        nh_graph <- igraph::induced_subgraph(nh_graph, vids = which(as.numeric(V(nh_graph)$name) %in% 
+            unlist(nhoodIndex(x)[subset.nhoods])))
+    }
+    nh_graph <- permute(nh_graph, order(vertex_attr(nh_graph)$size, 
+        decreasing = TRUE))
+    if (is.character(layout)) {
+        redDim <- layout
+        layout <- reducedDim(x, redDim)[as.numeric(vertex_attr(nh_graph)$name), 
+            ]
+        if (!any(class(layout) %in% c("matrix"))) {
+            warning("Coercing layout to matrix format")
+            layout <- as(layout, "matrix")
+        }
+    }
+    if (!is.na(colour_by)) {
+        if (colour_by %in% colnames(colData(x))) {
+            col_vals <- colData(x)[as.numeric(vertex_attr(nh_graph)$name), 
+                colour_by]
+            if (!is.numeric(col_vals)) {
+                col_vals <- as.character(col_vals)
+            }
+            V(nh_graph)$colour_by <- col_vals
+        }
+        else {
+            stop(colour_by, "is not a column in colData(x)")
+        }
+    }
+    else {
+        V(nh_graph)$colour_by <- V(nh_graph)$size
+        colour_by <- "Nhood size"
+    }
+    if (colour_by %in% c("logFC")) {
+        plot.g <- simplify(nh_graph)
+        pl <- ggraph(simplify(nh_graph), layout = layout) + geom_edge_link0(aes(width = weight), 
+            edge_colour = "grey66", edge_alpha = 0.2) + geom_node_point(aes(fill = colour_by, 
+            size = size), shape = 21, stroke = node_stroke) + 
+            scale_size(range = size_range, name = "Nhood size") + 
+            scale_edge_width(range = c(0.2, 3), name = "overlap size") + 
+            theme_classic(base_size = 14) + theme(axis.line = element_blank(), 
+            axis.text = element_blank(), axis.ticks = element_blank(), 
+            axis.title = element_blank())
+    }
+    else {
+        pl <- ggraph(simplify(nh_graph), layout = layout) + geom_edge_link0(aes(width = weight), 
+            edge_colour = "grey66", edge_alpha = 0.2) + geom_node_point(aes(fill = colour_by, 
+            size = size), shape = 21, stroke = node_stroke) + 
+            scale_size(range = size_range, name = "Nhood size") + 
+            scale_edge_width(range = c(0.2, 3), name = "overlap size") + 
+            theme_classic(base_size = 14) + theme(axis.line = element_blank(), 
+            axis.text = element_blank(), axis.ticks = element_blank(), 
+            axis.title = element_blank())
+    }
+    if (is.numeric(V(nh_graph)$colour_by)) {
+        #pl <- pl + scale_fill_gradientn(colours = wesanderson::wes_palette("Zissou1", 11, type = "continuous"))
+        #pl <- pl + scale_fill_gradientn(colours = colorRampPalette(RColorBrewer::brewer.pal(11, "Spectral"))(length(unique(V(nh_graph)$colour_by))))
+        #mycolors <- wesanderson::wes_palette("Zissou1", 11, type = "continuous")
+        #mycolors[6] <- "white"
+        #pl <- pl + scale_fill_gradientn(colours = mycolors)
+        pl <- pl + scale_fill_gradientn(colours = c("red","red","white","blue","blue"))
+    }
+    else {
+        mycolors <- colorRampPalette(brewer.pal(11, "Spectral"))(length(unique(V(nh_graph)$colour_by)))
+        pl <- pl + scale_fill_manual(values = mycolors, name = colour_by, 
+            na.value = "white")
+    }
+    pl
+}
+
+plotNhoodGraphDA_adapted <- function (x, milo_res, alpha = 0.05, res_column = "logFC", ...) 
+{
+    if (!.valid_graph(nhoodGraph(x))) {
+        stop("Not a valid Milo object - neighbourhood graph is missing. Please run buildNhoodGraph() first.")
+    }
+    if (is.character(layout)) {
+        if (!layout %in% names(reducedDims(x))) {
+            stop(layout, "is not in readucedDim(x) - choose a different layout")
+        }
+    }
+    signif_res <- milo_res
+    signif_res[signif_res$SpatialFDR > alpha, res_column] <- 0
+    colData(x)[res_column] <- NA
+    colData(x)[unlist(nhoodIndex(x)[signif_res$Nhood]), res_column] <- signif_res[, 
+        res_column]
+    plotNhoodGraph_adapted(x, colour_by = res_column, ...)
+}
+
+
