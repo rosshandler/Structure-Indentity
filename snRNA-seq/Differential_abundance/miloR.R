@@ -13,7 +13,7 @@ layout_umap <- read.csv("umap_layout_batch_corrected_contamination_cleaned.csv",
 meta_clus   <- read.csv("meta_annotated_updated.csv", header = TRUE)
 
 sce <- readRDS("sce.rds")
-sce <- sce[calculateAverage(sce)>0.1, colData(sce)$scDblFinder.class == "singlet"]
+sce <- sce[calculateAverage(sce)>0.05, colData(sce)$scDblFinder.class == "singlet"]
 sce <- logNormCounts(sce)
 
 pca <- read.csv("pca_corrected_seurat.csv")
