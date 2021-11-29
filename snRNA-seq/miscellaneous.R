@@ -1,5 +1,11 @@
+## Load packages
+library(scran)
+library(scater)
+library(Matrix)
+library(Seurat)
+library(ggplot2)
 
-## Colours
+## Load plotting colours
 
 leiden_colours <- c(
   "0"="#cb459b",
@@ -49,6 +55,26 @@ condition_colours <- c(
   "Fast"="#6889ff",
   "Diss"="#9a9100",
   "Unembed"="#00733a"
+)
+
+population_colours <- c(
+"Ventricular RG" = "#02d7ec",
+"Cycling RG" = "#4aadd6",
+"Mitotic RG" = "#005dd8",
+"Glycolytic RG" = "#0086cb",
+"Transcriptionally active RG" = "#4aac8d",
+"Differentiating RG" = "#6083d1",
+"IPC"   = "#ff8ba6",
+"Committed neurons" = "#90b600",
+"Migrating excitatory neurons" = "#a6023e",
+"DL enriched neurons"   = "#9e5d56",
+"UL enriched neurons"   = "#fa2274",
+"Mature excitatory neurons"="#d3b000",
+"Inhibitory neurons"="#228B22",
+"Cajal Retzius cells" = "#00ff00",
+"Cortical hem" = "#9e4d70",
+"Choroid plexus"  = "#935de6",
+"High metabolism/protein translation"   = "#ff6500"
 )
 
 population_colours_manuscript <- c(
