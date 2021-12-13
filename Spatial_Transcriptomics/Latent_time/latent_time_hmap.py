@@ -25,7 +25,55 @@ seurat_prediction_colours = {
 "Mature excitatory neurons":"#d3b000",
 }
 
+genes_list = {
+"SST",
+"PAX6",
+"PTN",
+"SOX2",
+"HMGA2",
+"SNTG1",
+"FAM107A",
+"LIFR",
+"MOXD1",
+"HOPX",
+"TNC",
+"EOMES",
+"DLX6-AS1",
+"CUX2",
+"HTR2C",
+"TTR",
+"SLC17A7",
+"SOX5",
+"TBR1",
+"PDZRN3",
+"DLG2",
+"GRIA2",
+"NECAB1",
+"TLE4",
+"CACNA2D3",
+"NR4A2",
+"GAD2",
+"GRIN2A",
+"GRM7",
+"ERBB4",
+"RELN",
+"GAD1",
+"ETV1",
+"NRF1",
+"RORB",
+"PTPRZ1",
+"SATB2",
+"BCL11B",
+"NKX2-1",
+"GRM1",
+"CAMK2A",
+"FOXP2",
+"GRIK1",
+} 
+
 os.chdir('/data1/ivanir/Ilaria2021/SpatialData/MolecularCartography/20230_segmentation')
+
+###############################################
 
 adata1 = sc.read('normcounts_postQC_slide1.tab')
 
@@ -47,7 +95,7 @@ hvgs1 = adata1.var_names[adata1.var['highly_variable']]
 
 hvgs1 = list(filter(lambda x:'RPL' not in x, hvgs1))
 
-scv.pl.heatmap(adata1, var_names=hvgs1, sortby='latent_time', col_color='seurat_prediction', n_convolve=300, yticklabels=True)
+scv.pl.heatmap(adata1, var_names=genes_list, sortby='latent_time', col_color='seurat_prediction', n_convolve=100, yticklabels=True)
 
 adata6 = sc.read('normcounts_postQC_slide6.tab')
 
@@ -69,10 +117,35 @@ hvgs6 = adata6.var_names[adata6.var['highly_variable']]
 
 hvgs6 = list(filter(lambda x:'RPL' not in x, hvgs6))
 
-scv.pl.heatmap(adata6, var_names=hvgs6, sortby='latent_time', col_color='seurat_prediction', n_convolve=300, yticklabels=True)
+scv.pl.heatmap(adata6, var_names=genes_list, sortby='latent_time', col_color='seurat_prediction', n_convolve=100, yticklabels=True)
 
+## Both together
 adata=adata1.concatenate(adata6)
 
 hvgs=list(set(hvgs1).union(hvgs6))
 
-scv.pl.heatmap(adata, var_names=hvgs, sortby='latent_time', col_color='batch', n_convolve=100, yticklabels=True)
+scv.pl.heatmap(adata, var_names=genes_list, sortby='latent_time', col_color='batch', n_convolve=100, yticklabels=True)
+###
+
+adata6 = sc.read('normcounts_postQC_slide6_A2.tab')
+
+file = open('cellnames_postQC_slide6_A2.txt', 'r')
+cells  = file.read().splitlines()
+
+file = open('genenames_postQC_slide6_A2.txt', 'r')
+genes   = file.read().splitlines()
+
+adata6.obs = pd.read_csv('metadata_postQC_slide6_A2.csv', sep =',', low_memory=False)
+adata6.obs_names = cells
+adata6.var_names = genes
+
+adata6.uns['seurat_prediction_colors'] = [seurat_prediction_colours[i] for i in sorted(np.unique(adata6.obs['seurat_prediction']))]
+
+sc.pp.highly_variable_genes(adata6, n_top_genes=50)
+
+hvgs6 = adata6.var_names[adata6.var['highly_variable']]
+
+hvgs6 = list(filter(lambda x:'RPL' not in x, hvgs6))
+
+scv.pl.heatmap(adata6, var_names=genes_list, sortby='latent_time', col_color='seurat_prediction', n_convolve=100, yticklabels=True)
+
