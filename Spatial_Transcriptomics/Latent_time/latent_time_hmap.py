@@ -26,7 +26,6 @@ seurat_prediction_colours = {
 }
 
 genes_list = {
-"SST",
 "PAX6",
 "PTN",
 "SOX2",
