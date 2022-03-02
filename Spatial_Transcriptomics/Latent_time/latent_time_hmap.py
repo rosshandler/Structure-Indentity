@@ -95,6 +95,8 @@ hvgs1 = adata1.var_names[adata1.var['highly_variable']]
 hvgs1 = list(filter(lambda x:'RPL' not in x, hvgs1))
 
 scv.pl.heatmap(adata1, var_names=genes_list, sortby='latent_time', col_color='seurat_prediction', n_convolve=200, yticklabels=True)
+hmap_ctrl = scv.pl.heatmap(adata1, var_names=genes_list, sortby='latent_time', col_color='seurat_prediction', n_convolve=200, yticklabels=True, show=False)
+genes_ordered = hmap_ctrl.data.index.values
 
 adata6 = sc.read('normcounts_postQC_slide6.tab')
 
@@ -117,6 +119,8 @@ hvgs6 = adata6.var_names[adata6.var['highly_variable']]
 hvgs6 = list(filter(lambda x:'RPL' not in x, hvgs6))
 
 scv.pl.heatmap(adata6, var_names=genes_list, sortby='latent_time', col_color='seurat_prediction', n_convolve=200, yticklabels=True)
+
+scv.pl.heatmap(adata6, var_names=genes_ordered, sortby='latent_time', col_color='seurat_prediction', n_convolve=200, yticklabels=True, sort=False)
 
 ## Both together
 adata=adata1.concatenate(adata6)
