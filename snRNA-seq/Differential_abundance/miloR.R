@@ -126,12 +126,12 @@ milo.res1 <- testNhoods(milo.obj, design=~morphology_clus+0, design.df=milo.desi
   model.contrasts="morphology_clus2 - morphology_clus1")
 head(milo.res1[order(milo.res1$PValue, decreasing=FALSE),])
 
-pdf("milo_HighvsLow_morph.pdf",width=12,height=6)
+pdf("milo_LowhvsHigh_morph.pdf",width=12,height=6)
 plotNhoodGraphDA(milo.obj, milo.res1, alpha=0.5) +
   plot_layout(guides="collect")
 dev.off()
 
-pdf("milo_HighvsLow_morph_adapted.pdf",width=12,height=6)
+pdf("milo_LowvsHigh_morph_adapted.pdf",width=12,height=6)
 plotNhoodGraphDA_adapted(milo.obj, milo.res1, alpha=0.5) +
   plot_layout(guides="collect")
 dev.off()
