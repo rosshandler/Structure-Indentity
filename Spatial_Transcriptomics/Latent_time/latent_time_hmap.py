@@ -122,7 +122,7 @@ scv.pl.heatmap(adata6, var_names=genes_list, sortby='latent_time', col_color='se
 
 scv.pl.heatmap(adata6, var_names=genes_ordered, sortby='latent_time', col_color='seurat_prediction', n_convolve=200, yticklabels=True, sort=False)
 
-## Both together
+# merged
 adata=adata1.concatenate(adata6)
 
 hvgs=list(set(hvgs1).union(hvgs6))
@@ -130,6 +130,7 @@ hvgs=list(set(hvgs1).union(hvgs6))
 scv.pl.heatmap(adata, var_names=genes_list, sortby='latent_time', col_color='batch', n_convolve=300, yticklabels=True)
 ###
 
+## slide 6 A2. nMG good organoid
 adata6 = sc.read('normcounts_postQC_slide6_A2.tab')
 
 file = open('cellnames_postQC_slide6_A2.txt', 'r')
@@ -151,4 +152,6 @@ hvgs6 = adata6.var_names[adata6.var['highly_variable']]
 hvgs6 = list(filter(lambda x:'RPL' not in x, hvgs6))
 
 scv.pl.heatmap(adata6, var_names=genes_list, sortby='latent_time', col_color='seurat_prediction', n_convolve=100, yticklabels=True)
+
+scv.pl.heatmap(adata6, var_names=genes_ordered, sortby='latent_time', col_color='seurat_prediction', n_convolve=200, yticklabels=True, sort=False)
 
