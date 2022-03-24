@@ -151,4 +151,5 @@ hvgs6 = adata6.var_names[adata6.var['highly_variable']]
 
 hvgs6 = list(filter(lambda x:'RPL' not in x, hvgs6))
 
-scv.pl.heatmap(adata6, var_names=genes_ordered, sortby='latent_time', col_color='seurat_prediction', n_convolve=100, yticklabels=True)
+scv.pl.heatmap(adata6, var_names=genes_ordered, sortby='latent_time', col_color='seurat_prediction', n_convolve=100, yticklabels=True, sort=False)
+
