@@ -77,4 +77,64 @@ adata.write('./write/scvelo_analysis_contamination_cleaned.h5ad')
 adata.obs.to_csv('structure-identity_scvelo_metadata_contamination_cleaned.csv')
 
 top_genes = adata.var['fit_likelihood'].sort_values(ascending=False).index[:100]
+
 scv.pl.heatmap(adata, var_names=top_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True)
+
+os.chdir('/data1/ivanir/Ilaria2021/data')
+
+adata_tmp = sc.read('./write/scvelo_analysis_contamination_cleaned.h5ad')
+
+adata = sc.read('structure-identity.loom', sparse=True)
+
+file = open('cell_barcodes_scvelo.txt', 'r')
+barcodes = file.read().splitlines()
+
+adata.obs_names_make_unique()
+adata.var_names_make_unique()
+
+adata = adata[barcodes]
+adata.obs = pd.read_csv('meta_annotated_updated_scvelo.csv', low_memory=False)
+
+scv.pp.pca(adata, n_comps=30)
+pca = pd.read_csv('pca_corrected_seurat_updated_scvelo.csv', sep =',', low_memory=False)
+pca = pd.DataFrame(pca)
+adata.obsm['X_pca'] = pca.values
+adata.obsm['X_pca'] = adata.obsm['X_pca'].astype(float)
+
+adata.obs['latent_time'] = adata_tmp.obs['latent_time'].values
+
+
+celltype_annotation_colours = {
+"Mitotic RG" : "#005dd8",
+"Cycling RG" : "#4aadd6",
+"Differentiating RG" : "#6083d1",
+"Ventricular RG" : "#02d7ec",
+"Glycolytic RG" : "#0086cb",
+"Transcriptionally active RG" : "#4aac8d",
+"Choroid plexus" : "#935de6",
+"Cortical hem" : "#9e4d70",
+"IPC" : "#ff8ba6",
+"Committed neurons" : "#90b600",
+"Inhibitory neurons" : "#228B22",
+"Cajal Retzius cells" : "#00ff00",
+"Migrating excitatory neurons" : "#a6023e",
+"UL enriched neurons" : "#fa2274",
+"DL enriched neurons" : "#9e5d56",
+"Migrating excitatory neurons" : "#a6023e",
+"Mature excitatory neurons" : "#d3b000",
+}
+
+adata.uns['celltype_annotation_colors'] = [celltype_annotation_colours[i] for i in sorted(np.unique(adata.obs['celltype_annotation']))]
+
+file = open('FCD_up_genes.txt', 'r')
+fcd_genes = file.read().splitlines()
+
+file = open('CTRL_up_genes.txt', 'r')
+ctrl_genes = file.read().splitlines()
+
+
+scv.pl.heatmap(adata, var_names=fcd_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True, font_scale= .5)
+
+scv.pl.heatmap(adata, var_names=ctrl_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True, font_scale= .5)
+
+
