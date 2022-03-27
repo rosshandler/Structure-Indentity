@@ -103,7 +103,6 @@ adata.obsm['X_pca'] = adata.obsm['X_pca'].astype(float)
 
 adata.obs['latent_time'] = adata_tmp.obs['latent_time'].values
 
-
 celltype_annotation_colours = {
 "Mitotic RG" : "#005dd8",
 "Cycling RG" : "#4aadd6",
@@ -132,9 +131,37 @@ fcd_genes = file.read().splitlines()
 file = open('CTRL_up_genes.txt', 'r')
 ctrl_genes = file.read().splitlines()
 
+file = open('HSM_genes.txt', 'r')
+hsm_genes = file.read().splitlines()
+
+file = open('LSM_genes.txt', 'r')
+lsm_genes = file.read().splitlines()
 
 scv.pl.heatmap(adata, var_names=fcd_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True, font_scale= .5)
 
 scv.pl.heatmap(adata, var_names=ctrl_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True, font_scale= .5)
+
+scv.pl.heatmap(adata, var_names=hsm_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True, font_scale= .5)
+
+scv.pl.heatmap(adata, var_names=lsm_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True, font_scale= .5)
+
+file = open('HSM_neu_genes.txt', 'r')
+hsm_genes = file.read().splitlines()
+
+file = open('LSM_neu_genes.txt', 'r')
+lsm_genes = file.read().splitlines()
+
+scv.pl.heatmap(adata, var_names=hsm_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True, font_scale= .5)
+
+scv.pl.heatmap(adata, var_names=lsm_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True, font_scale= .5)
+
+adata_neu = adata[adata.obs['celltype_annotation'].isin(['Committed neurons', 'Inhibitory neurons', 'Cajal Retzius cells', 'Migrating excitatory neurons', 'UL enriched neurons', 'DL enriched neurons', 'Migrating excitatory neurons','Mature excitatory neurons'])]
+
+adata_neu.obs[['scDblFinder.originAmbiguous']] = adata_neu.obs[['scDblFinder.originAmbiguous']].astype('string')
+
+scv.pl.heatmap(adata_neu, var_names=hsm_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True, font_scale= .5)
+
+scv.pl.heatmap(adata_neu, var_names=lsm_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True, font_scale= .5)
+
 
 
