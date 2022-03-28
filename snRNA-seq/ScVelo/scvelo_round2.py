@@ -151,9 +151,9 @@ hsm_genes = file.read().splitlines()
 file = open('LSM_neu_genes.txt', 'r')
 lsm_genes = file.read().splitlines()
 
-scv.pl.heatmap(adata, var_names=hsm_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True, font_scale= .5)
+scv.pl.heatmap(adata, var_names=hsm_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=500, yticklabels=True, font_scale= .5)
 
-scv.pl.heatmap(adata, var_names=lsm_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=100, yticklabels=True, font_scale= .5)
+scv.pl.heatmap(adata, var_names=lsm_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=500, yticklabels=True, font_scale= .5)
 
 hsm = scv.pl.heatmap(adata, var_names=hsm_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=1000, yticklabels=True, show=False)
 
