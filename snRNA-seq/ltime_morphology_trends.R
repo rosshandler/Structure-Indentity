@@ -1,40 +1,36 @@
 
+library("ggplot2")
+library("reshape2")
+
 setwd('/data1/ivanir/Ilaria2021/data')
 
-hsm=read.csv('hsm_ltime.csv', header=TRUE)
-hsm=hsm[-c(1:2),]
+hsm <- read.csv('hsm_ltime.csv', header=TRUE)
+hsm <- hsm[-c(1:2),]
 
 lsm=read.csv('lsm_ltime.csv', header=TRUE)
 
-morphology <- c(rep("hsm",nrow(hsm)),rep("lsm",nrow(lsm)))
+hsm_mean <- apply(hsm[,-m1],2,mean)
+lsm_mean <- apply(lsm[,-1],2,mean)
 
-df_plot <- data.frame(t(rbind(hsm,lsm)))
-genes   <- df_plot[1,]
-df_plot <- df_plot[-1,]
-colnames(df_plot) <- genes
-df_plot1 <- data.frame(cbind(latent_time=gsub("X","",rownames(df_plot)),df_plot))
-df_plot2 <- data.frame(cbind(morphology,t(df_plot)))
+hsm_sd <- apply(hsm[,-1],2,sd)
+lsm_sd <- apply(lsm[,-1],2,sd)
 
-library("reshape2")
-library("ggplot2")
+latent_time=as.numeric(gsub("X","",colnames(hsm[,-1])))
 
-g = ggplot(df_plot1,aes(x = as.numeric(latent_time), y = as.numeric(MALAT1)))
-g + geom_line()
+df <- data.frame(cbind(latent_time,hsm_mean,lsm_mean))
+df_long1 <- melt(df, id="latent_time")
+colnames(df_long1) <- c("latent_time","morphology","mean")
 
-test_data_long_time <- melt(df_plot1, id="latent_time")  # convert to long format
+df <- data.frame(cbind(latent_time,hsm_sd,lsm_sd))
+df_long2 <- melt(df, id="latent_time")
+colnames(df_long2) <- c("latent_time","morphology","sd")
 
-test_data_long_morph <- melt(df_plot2, id="morphology")  # convert to long format
+df_long <- data.frame(df_long1,sd=df_long2$sd)
 
-test_data_long_time_ext <- cbind(test_data_long_time,morphology=test_data_long_morph$morphology)
-
-test_data_long <- melt(df_plot1[,c("latent_time","RBFOX1", "MALAT1", "TIMP3", "ITSN2")], id="latent_time")  # convert to long format
-
-ggplot(data=test_data_long,
-       aes(x=as.numeric(latent_time), y=as.numeric(value), colour=variable)) +
-       geom_line()
-       
-pdf("test.pdf")
-ggplot(data=test_data_long_time_ext,
-       aes(x=as.numeric(latent_time), y=as.numeric(value), colour=morphology)) +
-       geom_line()
- dev.off()      
+pdf("HSMvsLSM_Trend.pdf")
+ggplot(data=df_long,
+       aes(x=as.numeric(latent_time), y=as.numeric(mean), colour=morphology)) +
+       geom_line() + theme_minimal() + theme(legend.position = "none") +
+       geom_ribbon(aes(y = mean, ymin = mean - sd, ymax = mean + sd, fill = morphology), alpha = .2, colour = NA) +
+       xlab("Latent time") + ylab("Mean gene expression")
+dev.off()
