@@ -162,6 +162,18 @@ lsm = scv.pl.heatmap(adata, var_names=lsm_genes, sortby='latent_time', col_color
 hsm.data2d.to_csv(r'hsm_ltime.csv', index = True)
 lsm.data2d.to_csv(r'lsm_ltime.csv', index = True)
 
+file = open('HSM_prog_genes.txt', 'r')
+hsm_genes = file.read().splitlines()
+
+file = open('LSM_prog_genes.txt', 'r')
+lsm_genes = file.read().splitlines()
+
+hsm = scv.pl.heatmap(adata, var_names=hsm_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=1000, yticklabels=True, show=False)
+
+lsm = scv.pl.heatmap(adata, var_names=lsm_genes, sortby='latent_time', col_color='celltype_annotation', n_convolve=1000, yticklabels=True, show=False)
+
+hsm.data2d.to_csv(r'hsm_ltime_prog.csv', index = True)
+lsm.data2d.to_csv(r'lsm_ltime_prog.csv', index = True)
 
 adata_neu = adata[adata.obs['celltype_annotation'].isin(['Committed neurons', 'Inhibitory neurons', 'Cajal Retzius cells', 'Migrating excitatory neurons', 'UL enriched neurons', 'DL enriched neurons', 'Migrating excitatory neurons','Mature excitatory neurons'])]
 adata_neu.obs[['scDblFinder.originAmbiguous']] = adata_neu.obs[['scDblFinder.originAmbiguous']].astype('string')
