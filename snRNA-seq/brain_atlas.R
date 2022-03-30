@@ -67,6 +67,15 @@ ggplot(data=test_data_long,
        aes(x=PCW, y=value, group=variable, colour=gene_set)) +
        geom_line(size=1.5) +
        scale_color_manual(values=col_key)
-       
-#library("ggdendro")
-#ggdendrogram(hc.l2[[which.min(sapply(hc.l2, cvi, b = labels, type = "VI"))]], rotate = TRUE, theme_dendro = FALSE)
+
+##
+library(biomaRt)
+ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL",
+                  dataset="hsapiens_gene_ensembl", 
+                  host="uswest.ensembl.org")
+Genes   = getBM(attributes = 'hgnc_symbol', mart = ensembl)
+
+Genes   = Genes[-grep('MT-',Genes),]
+
+set.seed(14)
+writeLines(sample(Genes,100),'Random_hs_genes.txt')
