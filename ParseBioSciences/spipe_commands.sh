@@ -23,3 +23,8 @@ split-pipe --mode all --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genome
 --fq1 $PBS/newvolume/expdata/SLX-22601.UnspecifiedIndex.HGTNNDMXY.s_2.r_1.fq.gz \
 --fq2 $PBS/newvolume/expdata/SLX-22601.UnspecifiedIndex.HGTNNDMXY.s_2.r_2.fq.gz \
 --output_dir $PBS/newvolume/analysis/S2 
+
+split-pipe --mode all --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
+--fq1 $PBS/newvolume/expdata/SLX-22604.UnspecifiedIndex.HNLNNDRX2.s_2.r_1.fq.gz \
+--fq2 $PBS/newvolume/expdata/SLX-22604.UnspecifiedIndex.HNLNNDRX2.s_2.r_2.fq.gz \
+--output_dir $PBS/newvolume/analysis/nuclei 
