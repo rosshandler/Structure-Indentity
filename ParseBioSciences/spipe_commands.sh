@@ -23,7 +23,13 @@ cat SLX-22601.UnspecifiedIndex.HGTNNDMXY.s_1.r_1.fq.gz SLX-22601.UnspecifiedInde
 split-pipe --mode all --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
 --fq1 $PBS/newvolume/expdata/SLX-22601.r_1.fq.gz \
 --fq2 $PBS/newvolume/expdata/SLX-22601.r_2.fq.gz \
---output_dir $PBS/newvolume/analysis/sCell 
+--output_dir $PBS/newvolume/analysis/sCell
+
+split-pipe --mode dge --tscp_use 500 --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
+--fq1 $PBS/newvolume/expdata/SLX-22601.r_1.fq.gz \
+--fq2 $PBS/newvolume/expdata/SLX-22601.r_2.fq.gz \
+--output_dir $PBS/newvolume/analysis/S1
+
 
 #single nuclei
 split-pipe --mode all --kit WT_mini --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
@@ -35,13 +41,8 @@ split-pipe --mode all --kit WT_mini --chemistry v2 --genome_dir $PBS/newvolume/g
 
 ...
 # Pipeline running 
-split-pipe --mode dge --tscp_use 500 --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
---fq1 $PBS/newvolume/expdata/SLX-22601.UnspecifiedIndex.HGTNNDMXY.s_1.r_1.fq.gz \
---fq2 $PBS/newvolume/expdata/SLX-22601.UnspecifiedIndex.HGTNNDMXY.s_1.r_2.fq.gz \
---output_dir $PBS/newvolume/analysis/S1
+split-pipe --mode all --tscp_use 500 --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
+--fq1 $PBS/newvolume/expdata/SLX-22601.UnspecifiedIndex.HGTNNDMXY.s_1.r_1.fq.gz,$PBS/newvolume/expdata/SLX-22601.UnspecifiedIndex.HGTNNDMXY.s_2.r_1.fq.gz \
+--fq2 $PBS/newvolume/expdata/SLX-22601.UnspecifiedIndex.HGTNNDMXY.s_1.r_2.fq.gz,$PBS/newvolume/expdata/SLX-22601.UnspecifiedIndex.HGTNNDMXY.s_2.r_2.fq.gz \
+--output_dir $PBS/newvolume/analysis/sCell
 
-# Pipeline running 
-split-pipe --mode dge --tscp_use 500 --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
---fq1 $PBS/newvolume/expdata/SLX-22601.UnspecifiedIndex.HGTNNDMXY.s_2.r_1.fq.gz \
---fq2 $PBS/newvolume/expdata/SLX-22601.UnspecifiedIndex.HGTNNDMXY.s_2.r_2.fq.gz \
---output_dir $PBS/newvolume/analysis/S2
