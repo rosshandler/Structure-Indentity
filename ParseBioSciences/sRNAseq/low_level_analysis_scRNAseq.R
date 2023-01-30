@@ -192,7 +192,7 @@ sce <- scDblFinder(sce, samples="bc1_well", dbr=.03, dims=30, BPPARAM=bp)
 bpstop(bp)
 table(sce$scDblFinder.class)
 #singlet doublet 
-#
+#  25527    1065
 
 sce_filt <- sce[calculateAverage(sce)>0.05,]
 
