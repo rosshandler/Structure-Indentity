@@ -32,6 +32,7 @@ dim(counts[,ngenes > 500])
 sample_bc1_well <- rep(NA, nrow(metadata))        
 sample_number   <- rep(NA, nrow(metadata))
 sample_name     <- rep(NA, nrow(metadata))
+condition       <- rep(NA, nrow(metadata))
 
 samples <- unique(sample_info$Sample_well)
 for (i in 1:length(samples)){
@@ -47,6 +48,16 @@ submeta$day <- gsub("d","",submeta$day)
 
 metadata <- data.frame(cbind(metadata, lib.sizes, sample_number, sample_bc1_well, sample_name, submeta))
 
+condition[which(metadata$day == 45)] <- "CTRL_45"
+condition[which(metadata$day == 48)] <- "DISS_48"
+condition[which(metadata$day == 55 & (metadata$replicate == "CTRLA" | metadata$replicate == "CTRLB" | metadata$replicate == "CTRL" | metadata$replicate == "Escapee"))] <- "CTRL_55"
+condition[which(metadata$day == 55 & (metadata$replicate == "DISSA" | metadata$replicate == "DISSB"))] <- "DISS_55"
+condition[which(metadata$day == 55 & (metadata$replicate == "Embed" | metadata$replicate == "Agar"))]  <- "EMB_55"
+condition[which(metadata$day == 70 & (metadata$replicate == "CTRLA" | metadata$replicate == "CTRLB"))] <- "CTRL_70"
+condition[which(metadata$day == 70 & (metadata$replicate == "DISSA" | metadata$replicate == "DISSB"))] <- "DISS_70"
+
+metadata <- cbind(metadata,condition)
+
 plot_df <- metadata
 
 setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/QC')
@@ -54,7 +65,7 @@ setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/QC')
 ggplot(plot_df, aes (x = factor(sample_name), y = as.numeric(lib.sizes))) +
   geom_boxplot() +
   theme_bw() +  coord_flip() +
-  labs(x = "Batch", y = "Number of UMIs") +
+  labs(x = "Sample", y = "Number of UMIs") +
   scale_y_log10(breaks = c(100, 1000, 5000, 10000, 50000, 100000),
     labels = c("100","1,000", "5,000", "10,000", "50,000", "100,000"))
 ggsave("UMIsBySample_beforeQC.pdf")
@@ -69,11 +80,11 @@ qplot(lib.sizes, ngenes, col = ifelse(ngenes < 500, "drop", "keep")) +
   scale_color_manual(values = c("drop" = "grey50", "keep" = "black"), name = "")
 dev.off()
 
-dim(counts[,ngenes > 500])
-#[1] 62703 52719
+dim(counts[,ngenes > 499 & lib.sizes > 999])
+#[1] 62703 27132
 
-counts   <- counts[,ngenes > 500]
-metadata <- metadata[ngenes > 500,]
+counts   <- counts[,ngenes > 499 & lib.sizes > 999]
+metadata <- metadata[ngenes > 499 & lib.sizes > 999,]
 lib.sizes <- colSums(counts)
 ngenes    <- colSums(counts > 0)
 
@@ -91,13 +102,13 @@ mt.lim <- min(mt.fraction[which(p.adjust(mt.p, method = "fdr") < 0.05)])
 
 #Threhdold
 mt.lim
-#[1] 0.08196721
+#[1] 0.07692308
 
 mt.lim <- min(mt.fraction[which(p.adjust(mt.p, method = "fdr") < 0.001)])
 
 #Threhdold
 mt.lim
-#[1] 0.1046875
+#[1] 0.09833585
 
 metadata <- data.frame(cbind(metadata,mt.fraction))
 
@@ -111,10 +122,10 @@ qplot(lib.sizes, mt.fraction, col = ifelse(mt.fraction>mt.lim, "drop", "keep")) 
 dev.off()
 
 dim(counts[,mt.fraction < mt.lim])
-#[1] 62703 51910
+#[1] 62703 26592
 
 dim(counts[,mt.fraction < 0.2])
-#[1] 62703 14284
+#[1] 62703 27063
 
 mtlim <- 0.2
 
@@ -135,7 +146,7 @@ clusts <- as.numeric(quickCluster(sce_filt, method = "igraph", min.size = 100))
 
 min.clust <- min(table(clusts))/2
 new_sizes <- c(floor(min.clust/3), floor(min.clust/2), floor(min.clust))
-sce_filt <- computeSumFactors(sce_filt, clusters = clusts, sizes = new_sizes, max.cluster.size = 3000)
+sce_filt  <- computeSumFactors(sce_filt, clusters = clusts, sizes = new_sizes, max.cluster.size = 3000)
 
 sizeFactors(sce) <- sizeFactors(sce_filt)
 
@@ -152,11 +163,26 @@ dev.off()
 ggplot(data.frame(colData(sce)), aes (x = factor(sample_name), y = as.numeric(lib.sizes))) +
   geom_boxplot() +
   theme_bw() +  coord_flip() +
-  labs(x = "Batch", y = "Number of UMIs") +
+  labs(x = "Sample", y = "Number of UMIs") +
   scale_y_log10(breaks = c(100, 1000, 5000, 10000, 50000, 100000),
     labels = c("100","1,000", "5,000", "10,000", "50,000", "100,000"))
 ggsave("UMIsBySample_afterQC.pdf")
 
+ggplot(data.frame(colData(sce)), aes (x = factor(sample_name))) +
+  geom_bar() +
+  theme_bw() +  coord_flip() +
+  labs(x = "Sample", y = "Number of Cells") 
+ggsave("CellsBySample_afterQC.pdf")
+
+ggplot(data.frame(colData(sce)), aes (x = factor(condition))) +
+  geom_bar() +
+  theme_bw() +  coord_flip() +
+  labs(x = "Condition", y = "Number of Cells") 
+ggsave("CellsByCondition_afterQC.pdf")
+
+table(colData(sce)$condition)
+#CTRL_45 CTRL_55 CTRL_70 DISS_48 DISS_55 DISS_70  EMB_55 
+#   5727    5778    1179     853    5375    4559    3121
 
 library(BiocParallel)
 
@@ -166,7 +192,7 @@ sce <- scDblFinder(sce, samples="bc1_well", dbr=.03, dims=30, BPPARAM=bp)
 bpstop(bp)
 table(sce$scDblFinder.class)
 #singlet doublet 
-#  49995    1915
+#
 
 sce_filt <- sce[calculateAverage(sce)>0.05,]
 
@@ -209,6 +235,7 @@ ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = factor(doublet))) +
   theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
   theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
   guides(colour = guide_legend(override.aes = list(size=7)))
+ggsave("umap_doublets.pdf")
 
 colData(sce) <- DataFrame(df_plot)
 
