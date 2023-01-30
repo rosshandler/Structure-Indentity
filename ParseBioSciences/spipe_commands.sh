@@ -5,12 +5,16 @@ PBS='/data1/ivanir/Ilaria2023/ParseBS'
 
 PATH="/data1/ivanir/Ilaria2023/ParseBS/ParseBiosciences-Pipeline.1.0.3p:$PATH"
 
+cd $PBS/newvolume/genomes/
+cat Homo_sapiens.GRCh38.108.gtf EmGFP.gtf > Homo_sapiens.GRCh38.108.EmGFP.gtf
+cat Homo_sapiens.GRCh38.dna.primary_assembly.fa EmGFP.fa > Homo_sapiens.GRCh38.dna.primary_assembly.EmGFP.fa
+
 # Genome indexing
 split-pipe \
 --mode mkref \
 --genome_name hg38 \
---fasta $PBS/newvolume/genomes/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz \
---genes $PBS/newvolume/genomes/Homo_sapiens.GRCh38.108.gtf.gz \
+--fasta $PBS/newvolume/genomes/Homo_sapiens.GRCh38.dna.primary_assembly.EmGFP.fa \
+--genes $PBS/newvolume/genomes/Homo_sapiens.GRCh38.108.EmGFP.gtf \
 --output_dir $PBS/newvolume/genomes/hg38
 
 # Merge both lanes of single cell experiment
@@ -24,12 +28,6 @@ split-pipe --mode all --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genome
 --fq1 $PBS/newvolume/expdata/SLX-22601.r_1.fq.gz \
 --fq2 $PBS/newvolume/expdata/SLX-22601.r_2.fq.gz \
 --output_dir $PBS/newvolume/analysis/sCell
-
-split-pipe --mode dge --tscp_use 500 --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
---fq1 $PBS/newvolume/expdata/SLX-22601.r_1.fq.gz \
---fq2 $PBS/newvolume/expdata/SLX-22601.r_2.fq.gz \
---output_dir $PBS/newvolume/analysis/S1
-
 
 #single nuclei
 split-pipe --mode all --kit WT_mini --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
