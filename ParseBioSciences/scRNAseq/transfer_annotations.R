@@ -43,6 +43,6 @@ seurat_query   <- AddMetaData(object = seurat_query, metadata = predictions)
 
 meta <- cbind(colData(sce_pb), seurat_prediction=seurat_query$predicted.id, seurat_max.score=seurat_query$prediction.score.max)
 
-saveRDS(meta, "transferred_annot_meta.rds")
+saveRDS(meta, paste0(path2data,'transferred_annot_meta.rds'))
 
 
