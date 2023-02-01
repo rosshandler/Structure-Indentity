@@ -90,12 +90,15 @@ theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=el
 theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
 guides(colour = guide_legend(override.aes = list(size=7)))
 
+meta   <-readRDS(paste0(path2data,'transferred_annot_meta.rds'))
+meta   <- meta[colData(sce_pb)$doublet=="singlet",]
+
 sce_pb <- logNormCounts(sce_pb)
 sce_pb <- sce_pb[,colData(sce_pb)$doublet=="singlet"]
 write.table(logcounts(sce_pb),"normalised_counts.tab", sep="\t", row.names=FALSE, quote=FALSE)
 writeLines(colnames(sce_pb),"cells.txt")
 writeLines(rownames(sce_pb),"genes.txt")
 
-metadata <- data.frame(cell=colnames(sce_pb),colData(sce_pb))
+metadata <- data.frame(cell=colnames(sce_pb),meta)
 metadata <- metadata[,-grep("scDblFinder",colnames(metadata))]
 write.table(metadata,"metadata.tab", sep="\t", row.names=FALSE, quote=FALSE)
