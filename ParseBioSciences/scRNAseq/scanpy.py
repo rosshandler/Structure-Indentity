@@ -31,6 +31,11 @@ sc.tl.leiden(adata, resolution=1)
 
 sc.tl.umap(adata, min_dist=.5)
 
+sc.pl.umap(adata, color='leiden')
+sc.pl.umap(adata, color='day')
+sc.pl.umap(adata, color='condition')
+sc.pl.umap(adata, color='seurat_prediction')
+
 
 
 
