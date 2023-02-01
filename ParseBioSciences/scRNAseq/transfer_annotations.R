@@ -91,7 +91,11 @@ theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=el
 guides(colour = guide_legend(override.aes = list(size=7)))
 
 sce_pb <- logNormCounts(sce_pb)
-write.table(logcounts(sce_pb[,colData(sce_pb)$doublet=="singlet"]),"normalised_counts.tab", sep="\t", row.names=FALSE, quote=FALSE)
-write.table(data.frame(colData(sce_pb)),"metadata.tab", sep="\t", row.names=FALSE, quote=FALSE)
-writeLines(colnames(sce_pb[,colData(sce_pb)$doublet=="single"]),"cells.txt")
-writeLines(rownames(sce_pb[,colData(sce_pb)$doublet=="single"]),"genes.txt")
+sce_pb <- sce_pb[,colData(sce_pb)$doublet=="singlet"]
+write.table(logcounts(sce_pb),"normalised_counts.tab", sep="\t", row.names=FALSE, quote=FALSE)
+writeLines(colnames(sce_pb),"cells.txt")
+writeLines(rownames(sce_pb),"genes.txt")
+
+metadata <- data.frame(cell=colnames(sce_pb),colData(sce_pb))
+metadata <- metadata[,-grep("scDblFinder",colnames(metadata))]
+write.table(metadata,"metadata.tab", sep="\t", row.names=FALSE, quote=FALSE)
