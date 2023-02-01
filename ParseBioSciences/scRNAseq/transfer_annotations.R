@@ -45,6 +45,8 @@ meta <- cbind(colData(sce_pb), seurat_prediction=seurat_query$predicted.id, seur
 
 saveRDS(meta, paste0(path2data,'transferred_annot_meta.rds'))
 
+setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/Annotation")
+
 population_colours <- c(
 "Mitotic RG" = "#005dd8",
 "Cycling RG" = "#4aadd6",
@@ -66,7 +68,7 @@ population_colours <- c(
 
 df_plot <- data.frame(meta)
 
-pdf("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/Annotation/transfer_label.pdf", width=12, height=8)
+pdf("transfer_label.pdf", width=12, height=8)
 ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction))) +
   geom_point(size = 1) +
   #geom_point(size = 3, aes(alpha = seurat_max.score)) + scale_alpha("Mapping score") +
@@ -88,3 +90,8 @@ theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=el
 theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
 guides(colour = guide_legend(override.aes = list(size=7)))
 
+sce_pb <- logNormCounts(sce_pb)
+write.table(logcounts(sce_pb[,colData(sce_pb)$doublet=="singlet"]),"normalised_counts.tab", sep="\t", row.names=FALSE, quote=FALSE)
+write.table(data.frame(colData(sce_pb)),"metadata.tab", sep="\t", row.names=FALSE, quote=FALSE)
+writeLines(colnames(sce_pb[,colData(sce_pb)$doublet=="single"]),"cells.txt")
+writeLines(rownames(sce_pb[,colData(sce_pb)$doublet=="single"]),"genes.txt")
