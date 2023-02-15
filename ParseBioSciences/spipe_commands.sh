@@ -43,43 +43,43 @@ rm SLX-22601.r_1.fq.gz SLX-22601.r_2.fq.gz
 # Pipeline running
 #single cell
 split-pipe --mode all --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
---fq1 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.ACTTGA.s_1.r_1.fq.gz \
---fq2 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.ACTTGA.s_1.r_2.fq.gz \
+--fq1 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.ACTTGA.s_1.r_1.fq.gz \
+--fq2 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.ACTTGA.s_1.r_2.fq.gz \
 --output_dir $PBS/newvolume/analysis/sCell
 
 split-pipe --mode all --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
---fq1 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.AGTCAA.s_1.r_1.fq.gz \
---fq2 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.AGTCAA.s_1.r_2.fq.gz \
+--fq1 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.AGTCAA.s_1.r_1.fq.gz \
+--fq2 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.AGTCAA.s_1.r_2.fq.gz \
 --output_dir $PBS/newvolume/analysis/sCell
 
 split-pipe --mode all --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
---fq1 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.AGTTCC.s_1.r_1.fq.gz \
---fq2 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.AGTTCC.s_1.r_2.fq.gz \
+--fq1 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.AGTTCC.s_1.r_1.fq.gz \
+--fq2 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.AGTTCC.s_1.r_2.fq.gz \
 --output_dir $PBS/newvolume/analysis/sCell
 
 split-pipe --mode all --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
---fq1 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.ATGTCA.s_1.r_1.fq.gz \
---fq2 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.ATGTCA.s_1.r_2.fq.gz \
+--fq1 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.ATGTCA.s_1.r_1.fq.gz \
+--fq2 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.ATGTCA.s_1.r_2.fq.gz \
 --output_dir $PBS/newvolume/analysis/sCell
 
 split-pipe --mode all --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
---fq1 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.CAGATC.s_1.r_1.fq.gz \
---fq2 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.CAGATC.s_1.r_2.fq.gz \
+--fq1 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.CAGATC.s_1.r_1.fq.gz \
+--fq2 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.CAGATC.s_1.r_2.fq.gz \
 --output_dir $PBS/newvolume/analysis/sCell
 
 split-pipe --mode all --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
---fq1 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.CTTGTA.s_1.r_1.fq.gz \
---fq2 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.CTTGTA.s_1.r_2.fq.gz \
+--fq1 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.CTTGTA.s_1.r_1.fq.gz \
+--fq2 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.CTTGTA.s_1.r_2.fq.gz \
 --output_dir $PBS/newvolume/analysis/sCell
 
 split-pipe --mode all --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
---fq1 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.GATCAG.s_1.r_1.fq.gz \
---fq2 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.GATCAG.s_1.r_2.fq.gz \
+--fq1 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.GATCAG.s_1.r_1.fq.gz \
+--fq2 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.GATCAG.s_1.r_2.fq.gz \
 --output_dir $PBS/newvolume/analysis/sCell
 
 split-pipe --mode all --kit WT --chemistry v2 --genome_dir $PBS/newvolume/genomes/hg38/ \
---fq1 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.TAGCTT.s_1.r_1.fq.gz \
---fq2 $PBS/newvolume/expdata/correctFast/SLX-22601.DNAA007.HGMLNDMXY.TAGCTT.s_1.r_2.fq.gz \
+--fq1 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.TAGCTT.s_1.r_1.fq.gz \
+--fq2 $PBS/newvolume/expdata/correctFastq/SLX-22601.DNAA007.HGMLNDMXY.TAGCTT.s_1.r_2.fq.gz \
 --output_dir $PBS/newvolume/analysis/sCell
 
 #single nuclei
