@@ -109,5 +109,14 @@ split-pipe --mode all --kit WT_mini --chemistry v2 --genome_dir $PBS/newvolume/g
 --fq2 $PBS/newvolume/expdata/correctFastq/SLX-22604.HGMLNDMXY.CAGATC.s_1.r_2.fq.gz \
 --output_dir $PBS/newvolume/analysis/sNuclei/CAGATC
 
+split-pipe \
+    --mode comb \
+    --sublibraries $PBS/newvolume/analysis/sCell/ACTTGA $PBS/newvolume/analysis/sCell/AGTCAA $PBS/newvolume/analysis/sCell/AGTTCC $PBS/newvolume/analysis/sCell/ATGTCA $PBS/newvolume/analysis/sCell/CAGATC $PBS/newvolume/analysis/sCell/CTTGTA $PBS/newvolume/analysis/sCell/GATCAG  $PBS/newvolume/analysis/sCell/TAGCTT \
+    --output_dir $PBS/newvolume/analysis/sCell/combined
 
+split-pipe \
+    --mode comb \
+    --sublibraries $PBS/newvolume/analysis/sNuclei/ACTTGA $PBS/newvolume/analysis/sNuclei/CAGATC \
+    --output_dir $PBS/newvolume/analysis/sNuclei/combined
+    
 
