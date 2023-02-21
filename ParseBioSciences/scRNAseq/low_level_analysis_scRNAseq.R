@@ -13,7 +13,7 @@ use_condaenv(condaenv="scanpy-p3.9")
 
 umap = import('umap')
 
-path2data   <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/all-well/DGE_unfiltered/'
+path2data   <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/'
 sample_info <- read.table('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/sample_info.tab',
   sep = "\t", header = TRUE)
 
@@ -241,7 +241,16 @@ colData(sce) <- DataFrame(df_plot)
 
 saveRDS(sce,paste0(path2data,"sce.rds"))
 
+lib.size <- colSums(counts(sce))
 
+df_plot <- data.frame(
+ lib.size = log10(lib.size),
+ doublet  = colData(sce)$doublet
+)
+
+ggplot(df_plot, aes(x=doublet, y=lib.size)) + 
+  geom_boxplot() +
+  labs(x = "", y = "log10(Library size)") 
 
 
 
