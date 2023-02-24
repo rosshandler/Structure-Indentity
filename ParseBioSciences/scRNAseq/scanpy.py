@@ -47,6 +47,11 @@ sc.pl.umap(adata, color='lib.sizes')
 sc.pl.umap(adata, color='gene_count')
 sc.pl.umap(adata, color='mt.fraction')
 
+sc.tl.diffmap(adata)
+sc.pl.diffmap(adata)
+
+sc.pp.neighbors(adata, n_neighbors=30, use_rep='X_diffmap', n_pcs=30)
+
 
 
 
