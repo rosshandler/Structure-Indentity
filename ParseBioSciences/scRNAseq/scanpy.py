@@ -3,25 +3,25 @@ import numpy as np
 import pandas as pd
 import scanpy as sc
 
-os.chdir('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/Annotation')
+os.chdir('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered')
 
-adata = sc.read('normalised_counts.tab')
+adata = sc.read('normalised_counts_qc.tab')
 adata = adata.transpose()
 
-file = open('cells.txt', 'r')
+file = open('cells_qc.txt', 'r')
 cells  = file.read().splitlines()
 
-file = open('genes.txt', 'r')
+file = open('genes_qc.txt', 'r')
 genes   = file.read().splitlines()
 
-adata.obs = pd.read_csv('metadata.tab', sep ='\t', low_memory=False)
+adata.obs = pd.read_csv('metadata_qc.tab', sep ='\t', low_memory=False)
 adata.obs_names = cells
 adata.var_names = genes
 
 adata.var_names_make_unique()
 
 sc.pp.filter_genes(adata, min_counts=3)
-sc.pp.highly_variable_genes(adata, n_top_genes=250)
+sc.pp.highly_variable_genes(adata, n_top_genes=1000)
 
 sc.pp.pca(adata, n_comps=30)
 
@@ -36,6 +36,8 @@ sc.pp.neighbors(adata, n_neighbors=15, n_pcs=30)
 sc.tl.leiden(adata, resolution=1)
 
 sc.tl.umap(adata, min_dist=.5)
+
+sc.write('structure-identity_pb', adata)
 
 sc.pl.umap(adata, color='phase')
 sc.pl.umap(adata, color='leiden')
