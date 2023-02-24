@@ -2,7 +2,7 @@ library(scran)
 library(Seurat)
 library(ggplot2)
 
-path2data    <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/all-well/DGE_unfiltered/'
+path2data    <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/'
 path2data10x <- '/data1/ivanir/Ilaria2021/UCSC_data/'
 
 sce_pb  <- readRDS(paste0(path2data, 'sce.rds'))
@@ -45,7 +45,13 @@ meta <- cbind(colData(sce_pb), seurat_prediction=seurat_query$predicted.id, seur
 
 saveRDS(meta, paste0(path2data,'transferred_annot_meta.rds'))
 
-setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/Annotation")
+sce_pb <- logNormCounts(sce_pb)
+
+write.table(as.matrix(logcounts(sce_pb)),"normalised_counts_qc.tab", sep="\t", row.names=FALSE, quote=FALSE)
+writeLines(colnames(sce_pb),"cells_qc.txt")
+writeLines(rownames(sce_pb),"genes_qc.txt")
+write.table(meta,"cell_metadata_qc.tab", sep="\t", row.names=FALSE, quote=FALSE)
+
 
 population_colours <- c(
 "Mitotic RG" = "#005dd8",
