@@ -47,14 +47,17 @@ saveRDS(meta, paste0(path2data,'transferred_annot_meta.rds'))
 
 sce_pb <- logNormCounts(sce_pb)
 
-sce_pb <- sce_pb[rowSums(counts(sce_pb)) > 0,]
+sce_pb <- sce_pb[calculateAverage(sce_pb)>0.01,]
 
-write.table(data.table(logcounts(sce_pb)),"normalised_counts_qc.tab", sep="\t", row.names=FALSE, quote=FALSE)
+write.table(as.matrix(logcounts(sce_pb)),"normalised_counts_qc.tab", sep="\t", row.names=FALSE, quote=FALSE)
 writeLines(colnames(sce_pb),"cells_qc.txt")
 writeLines(rownames(sce_pb),"genes_qc.txt")
 write.table(meta,"cell_metadata_qc.tab", sep="\t", row.names=FALSE, quote=FALSE)
 
 
+
+
+####################
 population_colours <- c(
 "Mitotic RG" = "#005dd8",
 "Cycling RG" = "#4aadd6",
