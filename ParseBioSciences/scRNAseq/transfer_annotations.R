@@ -2,6 +2,13 @@ library(scran)
 library(Seurat)
 library(ggplot2)
 
+library(irlba)
+library(Rtsne)
+
+library(umap)
+library(reticulate)
+use_condaenv(condaenv="scanpy-p3.9")
+
 path2data    <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/'
 path2data10x <- '/data1/ivanir/Ilaria2021/UCSC_data/'
 
@@ -49,13 +56,22 @@ sce_pb <- logNormCounts(sce_pb)
 
 sce_pb <- sce_pb[calculateAverage(sce_pb)>0.01,]
 
-write.table(as.matrix(logcounts(sce_pb)),"normalised_counts_qc.tab", sep="\t", row.names=FALSE, quote=FALSE)
-writeLines(colnames(sce_pb),"cells_qc.txt")
-writeLines(rownames(sce_pb),"genes_qc.txt")
-write.table(meta,"cell_metadata_qc.tab", sep="\t", row.names=FALSE, quote=FALSE)
+decomp  <- modelGeneVar(sce_pb)
+hvgs    <- rownames(decomp)[decomp$FDR < 0.1]
+length(hvgs)
+#[1] 625
+pca     <- prcomp_irlba(t(logcounts(sce_pb[hvgs,])), n = 30)
+rownames(pca$x) <- colnames(sce_pb)
+tsne    <- Rtsne(pca$x, pca = FALSE, check_duplicates = FALSE, num_threads=30)
+layout  <- umap(pca$x, method="umap-learn", umap_learn_args=c("n_neighbors", "n_epochs", "min_dist"), n_neighbors=30, min_dist=.25)
 
-
-
+df_plot <- data.frame(
+ meta,
+ tSNE1    = tsne$Y[, 1],
+ tSNE2    = tsne$Y[, 2], 
+ UMAP1 = layout$layout[,1],
+ UMAP2 = layout$layout[,2] 
+)
 
 ####################
 population_colours <- c(
@@ -77,9 +93,9 @@ population_colours <- c(
 "DL neurons"   = "#9e5d56",
 "Mature excitatory neurons"="#d3b000")
 
-df_plot <- data.frame(meta)
+setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/plots')
 
-pdf("transfer_label.pdf", width=12, height=8)
+pdf("transfer_label_with_doublets.pdf", width=12, height=8)
 ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction))) +
   geom_point(size = 1) +
   #geom_point(size = 3, aes(alpha = seurat_max.score)) + scale_alpha("Mapping score") +
@@ -93,6 +109,8 @@ dev.off()
 df_plot$seurat_prediction_cutoff <- rep("-",nrow(df_plot))
 df_plot$seurat_prediction_cutoff[df_plot$seurat_max.score > .5] <- as.character(df_plot$seurat_prediction[df_plot$seurat_max.score > .5])
 plot.index <- order(df_plot$seurat_prediction_cutoff)
+
+pdf("transfer_label_with_doublets_mapscore_thr.pdf", width=12, height=8)
 ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction_cutoff))) +
 geom_point(size = 1) +
 scale_color_manual(values=population_colours, name = "Cell population mapped", labels = names(population_colours)) +
@@ -100,16 +118,13 @@ theme_minimal() +
 theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
 theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
 guides(colour = guide_legend(override.aes = list(size=7)))
+dev.off()
 
-meta   <-readRDS(paste0(path2data,'transferred_annot_meta.rds'))
-meta   <- meta[colData(sce_pb)$doublet=="singlet",]
+setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/scanpy/')
 
-sce_pb <- logNormCounts(sce_pb)
-sce_pb <- sce_pb[,colData(sce_pb)$doublet=="singlet"]
-write.table(logcounts(sce_pb),"normalised_counts.tab", sep="\t", row.names=FALSE, quote=FALSE)
-writeLines(colnames(sce_pb),"cells.txt")
-writeLines(rownames(sce_pb),"genes.txt")
-
-metadata <- data.frame(cell=colnames(sce_pb),meta)
-metadata <- metadata[,-grep("scDblFinder",colnames(metadata))]
-write.table(metadata,"metadata.tab", sep="\t", row.names=FALSE, quote=FALSE)
+sce_pb_qc <- sce_pb[,colData(sce_pb)$doublet_class == "singlet"]
+meta_qc   <- meta[colData(sce_pb)$doublet_class    == "singlet",]
+write.table(as.matrix(logcounts(sce_pb_qc)),"normalised_counts_qc.tab", sep="\t", row.names=FALSE, quote=FALSE)
+writeLines(colnames(sce_pb_qc),"cells_qc.txt")
+writeLines(rownames(sce_pb_qc),"genes_qc.txt")
+write.table(meta_qc,"cell_metadata_qc.tab", sep="\t", row.names=FALSE, quote=FALSE)
