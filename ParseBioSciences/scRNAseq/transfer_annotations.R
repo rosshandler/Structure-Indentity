@@ -204,9 +204,9 @@ sce_ctrl  <- sce_pb[,grep("CTRL",meta$condition)]
 meta_ctrl <- meta[grep("CTRL",meta$condition),]
 sce_ctrl  <- sce_ctrl[,colData(sce_ctrl)$doublet_class == "singlet"]
 meta_ctrl <- meta_ctrl[colData(sce_ctrl)$doublet_class == "singlet",]
-write.table(as.matrix(logcounts(sce_pb_ctrl)),"normalised_counts_ctrl.tab", sep="\t", row.names=FALSE, quote=FALSE)
-writeLines(colnames(sce_pb_ctrl),"cells_ctrl.txt")
-writeLines(rownames(sce_pb_ctrl),"genes_ctrl.txt")
+write.table(as.matrix(logcounts(sce_ctrl)),"normalised_counts_ctrl.tab", sep="\t", row.names=FALSE, quote=FALSE)
+writeLines(colnames(sce_ctrl),"cells_ctrl.txt")
+writeLines(rownames(sce_ctrl),"genes_ctrl.txt")
 write.table(meta_ctrl,"cell_metadata_ctrl.tab", sep="\t", row.names=FALSE, quote=FALSE)
 
 sce_diss  <- sce_pb[,grep("DISS",meta$condition)]
