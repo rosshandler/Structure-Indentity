@@ -95,7 +95,7 @@ population_colours <- c(
 
 setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/plots')
 
-pdf("transfer_label_with_doublets.pdf", width=12, height=8)
+pdf("transfer_label.pdf", width=12, height=8)
 ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction))) +
   geom_point(size = 1) +
   #geom_point(size = 3, aes(alpha = seurat_max.score)) + scale_alpha("Mapping score") +
@@ -106,11 +106,22 @@ ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction))) +
   guides(colour = guide_legend(override.aes = list(size=7)))
 dev.off()
 
+ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction))) +
+  geom_point(size = 1) +
+  #geom_point(size = 3, aes(alpha = seurat_max.score)) + scale_alpha("Mapping score") +
+  scale_color_manual(values=population_colours, name = "Cell population mapped", labels = names(population_colours)) +
+  theme_minimal() + theme(legend.position = "none") +
+  theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+  guides(colour = guide_legend(override.aes = list(size=7))) +
+  facet_wrap(~seurat_prediction)
+ggsave("umap_split_transfer_label.pdf")
+
 df_plot$seurat_prediction_cutoff <- rep("-",nrow(df_plot))
 df_plot$seurat_prediction_cutoff[df_plot$seurat_max.score > .5] <- as.character(df_plot$seurat_prediction[df_plot$seurat_max.score > .5])
 plot.index <- order(df_plot$seurat_prediction_cutoff)
 
-pdf("transfer_label_with_doublets_mapscore_thr.pdf", width=12, height=8)
+pdf("transfer_label_mapscore_thr.pdf", width=12, height=8)
 ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction_cutoff))) +
 geom_point(size = 1) +
 scale_color_manual(values=population_colours, name = "Cell population mapped", labels = names(population_colours)) +
@@ -119,6 +130,66 @@ theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=el
 theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
 guides(colour = guide_legend(override.aes = list(size=7)))
 dev.off()
+
+plot.index <- sample(1:nrow(df_plot))
+ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = day)) +
+geom_point(size = 1) +
+#scale_color_manual(values=population_colours, name = "Cell population mapped", labels = names(population_colours)) +
+theme_minimal() +
+theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+guides(colour = guide_legend(override.aes = list(size=7)))
+ggsave("umap_day.pdf")
+
+plot.index <- sample(1:nrow(df_plot))
+ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = day)) +
+geom_point(size = 1) +
+#scale_color_manual(values=population_colours, name = "Cell population mapped", labels = names(population_colours)) +
+theme_minimal() + theme(legend.position = "none") +
+theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+guides(colour = guide_legend(override.aes = list(size=7))) +
+facet_wrap(~day)
+ggsave("umap_split_day.pdf")
+                      
+plot.index <- sample(1:nrow(df_plot))
+ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = condition)) +
+geom_point(size = 1) +
+#scale_color_manual(values=population_colours, name = "Cell population mapped", labels = names(population_colours)) +
+theme_minimal() +
+theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+guides(colour = guide_legend(override.aes = list(size=7)))
+ggsave("umap_condition.pdf")
+
+plot.index <- sample(1:nrow(df_plot))
+ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = condition)) +
+geom_point(size = 1) +
+#scale_color_manual(values=population_colours, name = "Cell population mapped", labels = names(population_colours)) +
+theme_minimal() + theme(legend.position = "none") +
+theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+guides(colour = guide_legend(override.aes = list(size=7))) +
+facet_wrap(~condition)
+ggsave("umap_split_condition.pdf")
+
+plot.index <- order(df_plot$mt.fraction)
+ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = mt.fraction)) +
+geom_point(size = 1) +
+scale_color_gradient(low="gray", high="red") +
+theme_minimal() +
+theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+ggsave("umap_mtfraction.pdf")
+
+plot.index <- order(df_plot$doublet_score)
+ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = doublet_score)) +
+geom_point(size = 1) +
+scale_color_gradient(low="gray", high="black") +
+theme_minimal() +
+theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+ggsave("umap_doublet_score.pdf")
 
 setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/scanpy/')
 
