@@ -200,23 +200,29 @@ writeLines(colnames(sce_pb_qc),"cells_qc.txt")
 writeLines(rownames(sce_pb_qc),"genes_qc.txt")
 write.table(meta_qc,"cell_metadata_qc.tab", sep="\t", row.names=FALSE, quote=FALSE)
 
-sce_pb_ctrl <- sce_pb[,colData(sce_pb)$doublet_class == "singlet"]
-meta_ctrl   <- meta[colData(sce_pb)$doublet_class    == "singlet",]
+sce_ctrl  <- sce_pb[,grep("CTRL",meta$condition)]
+meta_ctrl <- meta[grep("CTRL",meta$condition),]
+sce_ctrl  <- sce_ctrl[,colData(sce_ctrl)$doublet_class == "singlet"]
+meta_ctrl <- meta_ctrl[colData(sce_ctrl)$doublet_class == "singlet",]
 write.table(as.matrix(logcounts(sce_pb_ctrl)),"normalised_counts_ctrl.tab", sep="\t", row.names=FALSE, quote=FALSE)
 writeLines(colnames(sce_pb_ctrl),"cells_ctrl.txt")
 writeLines(rownames(sce_pb_ctrl),"genes_ctrl.txt")
 write.table(meta_ctrl,"cell_metadata_ctrl.tab", sep="\t", row.names=FALSE, quote=FALSE)
 
-sce_pb_diss <- sce_pb[,colData(sce_diss)$doublet_class == "singlet"]
-meta_diss   <- meta[colData(sce_diss)$doublet_class    == "singlet",]
-write.table(as.matrix(logcounts(sce_pb_diss)),"normalised_counts_diss.tab", sep="\t", row.names=FALSE, quote=FALSE)
-writeLines(colnames(sce_pb_diss),"cells_diss.txt")
-writeLines(rownames(sce_pb_diss),"genes_diss.txt")
-write.table(meta_qc,"cell_metadata_diss.tab", sep="\t", row.names=FALSE, quote=FALSE)
+sce_diss  <- sce_pb[,grep("DISS",meta$condition)]
+meta_diss <- meta[grep("DISS",meta$condition),]
+sce_diss  <- sce_diss[,colData(sce_diss)$doublet_class == "singlet"]
+meta_diss <- meta_diss[colData(sce_diss)$doublet_class == "singlet",]
+write.table(as.matrix(logcounts(sce_diss)),"normalised_counts_diss.tab", sep="\t", row.names=FALSE, quote=FALSE)
+writeLines(colnames(sce_diss),"cells_diss.txt")
+writeLines(rownames(sce_diss),"genes_diss.txt")
+write.table(meta_diss,"cell_metadata_diss.tab", sep="\t", row.names=FALSE, quote=FALSE)
 
-sce_pb_emb <- sce_pb[,colData(sce_pb)$doublet_class == "singlet"]
-meta_emb   <- meta[colData(sce_pb)$doublet_class    == "singlet",]
-write.table(as.matrix(logcounts(sce_pb_emb)),"normalised_counts_emb.tab", sep="\t", row.names=FALSE, quote=FALSE)
-writeLines(colnames(sce_pb_emb),"cells_emb.txt")
-writeLines(rownames(sce_pb_emb),"genes_emb.txt")
+sce_emb  <- sce_pb[,grep("EMB",meta$condition)]
+meta_emb <- meta[grep("EMB",meta$condition),]
+sce_emb  <- sce_emb[,colData(sce_emb)$doublet_class == "singlet"]
+meta_emb <- meta_emb[colData(sce_emb)$doublet_class == "singlet",]
+write.table(as.matrix(logcounts(sce_emb)),"normalised_counts_emb.tab", sep="\t", row.names=FALSE, quote=FALSE)
+writeLines(colnames(sce_emb),"cells_emb.txt")
+writeLines(rownames(sce_emb),"genes_emb.txt")
 write.table(meta_emb,"cell_metadata_emb.tab", sep="\t", row.names=FALSE, quote=FALSE)
