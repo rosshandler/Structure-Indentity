@@ -180,11 +180,20 @@ table(sce$scDblFinder.class)
 #singlet doublet 
 #  39090    2486 
 
+bpstart(bp)
+sce_test <- scDblFinder(sce, samples="bc1_well", dims=30, BPPARAM=bp)
+bpstop(bp)
+table(sce_test$scDblFinder.class)
+#singlet doublet 
+#  40063    1513
+
 sce_filt <- sce[calculateAverage(sce)>0.01,]
 sce_filt <- logNormCounts(sce_filt)
 
 decomp  <- modelGeneVar(sce_filt)
-hvgs    <- rownames(decomp)[decomp$FDR < 0.5]
+hvgs    <- rownames(decomp)[decomp$FDR < 0.1]
+#length(hvgs)
+#[1] 625
 pca     <- prcomp_irlba(t(logcounts(sce_filt[hvgs,])), n = 30)
 rownames(pca$x) <- colnames(sce_filt)
 tsne <- Rtsne(pca$x, pca = FALSE, check_duplicates = FALSE, num_threads=30)
@@ -227,9 +236,12 @@ ggplot(df_plot, aes(x=doublet, y=log10(lib.sizes))) +
   labs(x = "", y = "log10(Library size)") 
 ggsave("boxplot_doublets.pdf")
 
-sce <- sce[,colData(sce)$scDblFinder.class == "singlet"]
+doublet_score <- colData(sce)$scDblFinder.score
+doublet_class <- colData(sce)$scDblFinder.class
 
-ggplot(data.frame(colData(sce)), aes (x = factor(sample_name), y = as.numeric(lib.sizes))) +
+sce_qc <- sce[,colData(sce)$scDblFinder.class == "singlet"]
+
+ggplot(data.frame(colData(sce_qc)), aes (x = factor(sample_name), y = as.numeric(lib.sizes))) +
   geom_boxplot() +
   theme_bw() +  coord_flip() +
   labs(x = "Sample", y = "Number of UMIs") +
@@ -238,7 +250,7 @@ ggplot(data.frame(colData(sce)), aes (x = factor(sample_name), y = as.numeric(li
 ggsave("UMIsBySample_afterQC.pdf")
 
 pdf("UMIsDensityBySample_afterQC.pdf", width=12)
-data.frame(colData(sce)) %>% 
+data.frame(colData(sce_qc)) %>% 
   	ggplot(aes(color=sample_name, x=lib.sizes, fill= sample_name)) + 
   	geom_density(alpha = 0.2) + 
   	scale_x_log10() + 
@@ -247,23 +259,30 @@ data.frame(colData(sce)) %>%
   	geom_vline(xintercept = 400)
 dev.off()
 
-ggplot(data.frame(colData(sce)), aes (x = factor(sample_name))) +
+ggplot(data.frame(colData(sce_qc)), aes (x = factor(sample_name))) +
   geom_bar() +
   theme_bw() +  coord_flip() +
   labs(x = "Sample", y = "Number of Cells") 
 ggsave("CellsBySample_afterQC.pdf")
 
-ggplot(data.frame(colData(sce)), aes (x = factor(condition))) +
+ggplot(data.frame(colData(sce_qc)), aes (x = factor(condition))) +
   geom_bar() +
   theme_bw() +  coord_flip() +
   labs(x = "Condition", y = "Number of Cells") 
 ggsave("CellsByCondition_afterQC.pdf")
 
-table(colData(sce)$condition)
+table(colData(sce_qc)$condition)
 #CTRL_45 CTRL_55 CTRL_70 DISS_48 DISS_55 DISS_70  EMB_55 
 #   7746    7742    2174    1528    9439    7741    5206
 
 colData(sce) <- colData(sce)[,-grep("scDblFinder",colnames(colData(sce)))]
+
+colData(sce)$doublet_score <- doublet_score
+colData(sce)$doublet_class <- doublet_class
+
+pdf("histogram_of_doublet_score.pdf")
+hist(doublet_score)
+dev.off()
 
 saveRDS(sce,paste0(path2data,"sce.rds"))
 
