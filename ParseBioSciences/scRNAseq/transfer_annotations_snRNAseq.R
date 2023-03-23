@@ -9,7 +9,7 @@ library(umap)
 library(reticulate)
 use_condaenv(condaenv="scanpy-p3.9")
 
-path2data    <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sNuclei/all-well/DGE_filtered/'
+path2data    <- '//data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sNuclei/combined/all-well/DGE_filtered/'
 path2data10x <- '/data1/ivanir/Ilaria2021/UCSC_data/'
 
 sce_pb  <- readRDS(paste0(path2data, 'sce.rds'))
@@ -72,3 +72,62 @@ df_plot <- data.frame(
  UMAP1 = layout$layout[,1],
  UMAP2 = layout$layout[,2] 
 )
+
+####################
+population_colours <- c(
+"Mitotic RG" = "#005dd8",
+"Cycling RG" = "#4aadd6",
+"Differentiating RG" = "#6083d1",
+"RG" = "#02d7ec",
+"Glycolytic RG" = "#0086cb",
+"High trancription RG" = "#4aac8d",
+"Chp" = "#935de6",
+"Cortical hem" = "#9e4d70",
+"Cycling IPCs" = "#d74897",
+"IPCs"   = "#ff8ba6",
+"IN"="#228B22",
+"Mature IN" = "#90b600",
+"CR cells" = "#00ff00",
+"Migrating excitatory neurons" = "#a6023e",
+"UL neurons"   = "#fa2274",
+"DL neurons"   = "#9e5d56",
+"Mature excitatory neurons"="#d3b000")
+
+setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sNuclei/combined/plots')
+
+pdf("transfer_label.pdf", width=12, height=8)
+ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction))) +
+  geom_point(size = 1) +
+  #geom_point(size = 3, aes(alpha = seurat_max.score)) + scale_alpha("Mapping score") +
+  scale_color_manual(values=population_colours, name = "Cell population mapped", labels = names(population_colours)) +
+  theme_minimal() + 
+  theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+  guides(colour = guide_legend(override.aes = list(size=7)))
+dev.off()
+
+ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction))) +
+  geom_point(size = 1) +
+  #geom_point(size = 3, aes(alpha = seurat_max.score)) + scale_alpha("Mapping score") +
+  scale_color_manual(values=population_colours, name = "Cell population mapped", labels = names(population_colours)) +
+  theme_minimal() + theme(legend.position = "none") +
+  theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+  guides(colour = guide_legend(override.aes = list(size=7))) +
+  facet_wrap(~seurat_prediction)
+ggsave("umap_split_transfer_label.pdf")
+
+df_plot$seurat_prediction_cutoff <- rep("-",nrow(df_plot))
+df_plot$seurat_prediction_cutoff[df_plot$seurat_max.score > .5] <- as.character(df_plot$seurat_prediction[df_plot$seurat_max.score > .5])
+plot.index <- order(df_plot$seurat_prediction_cutoff)
+
+pdf("transfer_label_mapscore_thr.pdf", width=12, height=8)
+ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction_cutoff))) +
+geom_point(size = 1) +
+scale_color_manual(values=population_colours, name = "Cell population mapped", labels = names(population_colours)) +
+theme_minimal() +
+theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+guides(colour = guide_legend(override.aes = list(size=7)))
+dev.off()
+
