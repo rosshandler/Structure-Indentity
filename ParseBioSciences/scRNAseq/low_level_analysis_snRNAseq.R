@@ -13,8 +13,8 @@ use_condaenv(condaenv="scanpy-p3.9")
 
 umap = import('umap')
 
-path2data   <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sNuclei/all-well/DGE_filtered/'
-sample_info <- read.table('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sNuclei/sample_info.tab',
+path2data   <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sNuclei/combined/all-well/DGE_filtered/'
+sample_info <- read.table('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sample_info_sNuclei.tab',
   sep = "\t", header = TRUE)
 
 counts    <- t(readMM(paste0(path2data, "DGE.mtx")))
@@ -41,7 +41,7 @@ colnames(submeta) <- c("batch", "day", "replicate")
 submeta$day <- gsub("d","",submeta$day)
 
 dim(counts)
-#[1] 62703 14322
+#[1] 62704 15447
 
 metadata <- data.frame(cbind(metadata, lib.sizes, sample_number, sample_bc1_well, sample_name, submeta))
 
@@ -68,7 +68,7 @@ qplot(lib.sizes, ngenes, col = ifelse(ngenes < 500, "drop", "keep")) +
 dev.off()
 
 dim(counts[,ngenes > 500])
-#[1] 62703 14284
+#[1] 62704 15447
 
 ensembl <- useEnsembl(biomart = "ensembl",  dataset = "hsapiens_gene_ensembl",mirror="useast")
 
@@ -84,13 +84,13 @@ mt.lim <- min(mt.fraction[which(p.adjust(mt.p, method = "fdr") < 0.05)])
 
 #Threhdold
 mt.lim
-#[1] 0.004576659
+#[1] 0.004080939
 
 mt.lim <- min(mt.fraction[which(p.adjust(mt.p, method = "fdr") < 0.001)])
 
 #Threhdold
 mt.lim
-#[1] 0.006525792
+#[1] 0.005868405
 
 metadata <- data.frame(cbind(metadata,mt.fraction))
 
@@ -104,10 +104,10 @@ qplot(lib.sizes, mt.fraction, col = ifelse(mt.fraction>mt.lim, "drop", "keep")) 
 dev.off()
 
 dim(counts[,ngenes > 500 | mt.fraction < mt.lim])
-#[1] 62703 14284
+#[1] 62704 15314
 
 dim(counts[,ngenes > 500 | mt.fraction < 0.2])
-#[1] 62703 14284
+#[1] 62704 15361
 
 sce <- SingleCellExperiment(list(counts=counts[,ngenes > 500 | mt.fraction > mt.lim]),
   colData=DataFrame(metadata[ngenes > 500 | mt.fraction > mt.lim,]))
@@ -148,7 +148,7 @@ sce <- scDblFinder(sce, samples="bc1_well", dbr=.03, dims=30, BPPARAM=bp)
 bpstop(bp)
 table(sce$scDblFinder.class)
 #singlet doublet 
-#  13699     623
+#   14767     647
 
 sce_filt <- sce[calculateAverage(sce)>0.05,]
 
@@ -181,6 +181,17 @@ ggplot(df_plot[plot.index,], aes(x = tSNE1, y = tSNE2, col = factor(doublet))) +
   theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
   guides(colour = guide_legend(override.aes = list(size=7)))
 ggsave("tsne_doublets.pdf")
+
+ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = factor(doublet))) +
+  geom_point(size = 0.4) +
+  scale_color_manual(values=c("gray","#0169c1"), name = "") +
+  labs(x = "Dim 1", y = "Dim 2") +
+  theme_minimal() + #theme(legend.position = "none") +
+  guides(colour = guide_legend(override.aes = list(size=7))) +
+  theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+  guides(colour = guide_legend(override.aes = list(size=7)))
+ggsave("umap_doublets.pdf")
 
 colData(sce) <- DataFrame(df_plot)
 
