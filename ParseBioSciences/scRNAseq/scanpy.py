@@ -38,9 +38,9 @@ sc.tl.leiden(adata, resolution=1)
 sc.tl.umap(adata, min_dist=.5)
 
 sc.pl.umap(adata, color='phase')
-sc.pl.umap(adata, color='leiden')
-sc.pl.umap(adata, color='condition')
-sc.pl.umap(adata, color='seurat_prediction')
+#sc.pl.umap(adata, color='leiden')
+#sc.pl.umap(adata, color='condition')
+#sc.pl.umap(adata, color='seurat_prediction')
 
 adata.write('structure-identity_pb')
 
@@ -78,9 +78,9 @@ sc.tl.leiden(adata, resolution=1)
 sc.tl.umap(adata, min_dist=.5)
 
 sc.pl.umap(adata, color='phase')
-sc.pl.umap(adata, color='leiden')
-sc.pl.umap(adata, color='condition')
-sc.pl.umap(adata, color='seurat_prediction')
+#sc.pl.umap(adata, color='leiden')
+#sc.pl.umap(adata, color='condition')
+#sc.pl.umap(adata, color='seurat_prediction')
 
 adata.write('structure-identity_ctrl')
 
@@ -118,9 +118,9 @@ sc.tl.leiden(adata, resolution=1)
 sc.tl.umap(adata, min_dist=.5)
 
 sc.pl.umap(adata, color='phase')
-sc.pl.umap(adata, color='leiden')
-sc.pl.umap(adata, color='condition')
-sc.pl.umap(adata, color='seurat_prediction')
+#sc.pl.umap(adata, color='leiden')
+#sc.pl.umap(adata, color='condition')
+#sc.pl.umap(adata, color='seurat_prediction')
 
 adata.write('structure-identity_diss')
 
@@ -158,9 +158,9 @@ sc.tl.leiden(adata, resolution=1)
 sc.tl.umap(adata, min_dist=.5)
 
 sc.pl.umap(adata, color='phase')
-sc.pl.umap(adata, color='leiden')
-sc.pl.umap(adata, color='condition')
-sc.pl.umap(adata, color='seurat_prediction')
+#sc.pl.umap(adata, color='leiden')
+#sc.pl.umap(adata, color='condition')
+#sc.pl.umap(adata, color='seurat_prediction')
 
 adata.write('structure-identity_emb')
 
