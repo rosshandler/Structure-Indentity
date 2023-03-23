@@ -163,6 +163,8 @@ sc.pl.umap(adata, color='condition')
 sc.pl.umap(adata, color='seurat_prediction')
 
 adata.write('structure-identity_emb')
+
+
 ######
 sc.tl.diffmap(adata)
 sc.pl.diffmap(adata)
