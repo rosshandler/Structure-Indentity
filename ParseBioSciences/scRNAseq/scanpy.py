@@ -21,10 +21,9 @@ adata.var_names = genes
 adata.var_names_make_unique()
 
 sc.pp.filter_genes(adata, min_counts=3)
-sc.pp.highly_variable_genes(adata, n_top_genes=700)
+sc.pp.highly_variable_genes(adata, n_top_genes=650)
 
-ssc.pp.pca(adata, n_comps=30)
-sc.tl.diffmap(adata)
+sc.pp.pca(adata, n_comps=30)
 
 cell_cycle_genes = [x.strip() for x in open('/data1/ivanir/Ilaria2021/data/regev_lab_cell_cycle_genes.txt')]
 s_genes   = cell_cycle_genes[:43]
@@ -39,7 +38,9 @@ adata.obs = adata.obs.rename({'leiden': 'leiden_pca'}, axis='columns')
 #sc.tl.umap(adata)
 #sc.pl.umap(adata, color='seurat_prediction')
 
-sc.pp.neighbors(adata, n_neighbors=30, use_rep='X_diffmap', n_pcs=30)
+sc.tl.diffmap(adata)
+
+sc.pp.neighbors(adata, n_neighbors=15, use_rep='X_diffmap', n_pcs=30)
 sc.tl.leiden(adata, resolution=1)
 adata.obs = adata.obs.rename({'leiden': 'leiden_dmap'}, axis='columns')
 
@@ -48,16 +49,17 @@ sc.tl.paga(adata, groups='seurat_prediction')
 sc.pl.paga(adata)
 
 sc.tl.umap(adata, init_pos='paga')
-#sc.pl.umap(adata, color='leiden')
-#sc.pl.umap(adata, color='phase')
-#sc.pl.umap(adata, color='leiden')
+sc.pl.umap(adata, color='seurat_prediction')
+#sc.pl.umap(adata, color='leiden_dmap')
+#sc.pl.umap(adata, color='leiden_pca')
 #sc.pl.umap(adata, color='condition')
-#sc.pl.umap(adata, color='seurat_prediction')
+#sc.pl.umap(adata, color='phase')
+
+adata.write('structure-identity_pb.hda5')
 
 adata.obs.to_csv('structure-identity_pb.csv')
 
 np.savetxt('umap_layout.csv', adata.obsm['X_umap'], delimiter=',')
 
-adata.write('structure-identity_pb.hda5')
 
 
