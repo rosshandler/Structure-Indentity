@@ -52,6 +52,10 @@ meta <- cbind(colData(sce_pb), seurat_prediction=seurat_query$predicted.id, seur
 
 saveRDS(meta, paste0(path2data,'transferred_annot_meta.rds'))
 
+##
+meta <- readRDS(paste0(path2data,'transferred_annot_meta.rds'))
+
+
 sce_pb <- logNormCounts(sce_pb)
 
 sce_pb <- sce_pb[calculateAverage(sce_pb)>0.01,]
@@ -226,3 +230,10 @@ write.table(as.matrix(logcounts(sce_emb)),"normalised_counts_emb.tab", sep="\t",
 writeLines(colnames(sce_emb),"cells_emb.txt")
 writeLines(rownames(sce_emb),"genes_emb.txt")
 write.table(meta_emb,"cell_metadata_emb.tab", sep="\t", row.names=FALSE, quote=FALSE)
+
+######
+sce_ctrl45vsdiss48  <- sce_pb[,
+  colData(sce_pb)$doublet_class == "singlet" & (colData(sce_pb)$condition == "CTRL_45" | colData(sce_pb)$condition == "DISS_48")]
+meta_ctrl45vsdiss48 <- meta[
+  colData(sce_pb)$doublet_class == "singlet" & (colData(sce_pb)$condition == "CTRL_45" | colData(sce_pb)$condition == "DISS_48"),]
+
