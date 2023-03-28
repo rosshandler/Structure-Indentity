@@ -73,12 +73,12 @@ df_plot <- cbind(meta, umap)
 #df_plot$celltype_manuscript <- factor(df_plot$celltype_manuscript, levels=names(population_colours_manuscript))
 
 sce_ctrl <- readRDS(
-"/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/sce.rds")[,as.character(meta$cell)]
+"/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/sce.rds")[,gsub("_pb","",as.character(meta$cell))]
 sce_ctrl <- logNormCounts(sce_ctrl)
+rownames(sce_ctrl) <- rowData(sce_ctrl)$gene_name
 gexp <- logcounts(sce_ctrl)
 
-
-plotLayoutExpression <- function(gene="MALAT1"){
+plotLayoutExpression <- function(gene="TTR"){
   require(Matrix)
   require(ggplot2)
     logcounts <- as.vector(as.matrix(gexp[gene,]))
@@ -92,13 +92,44 @@ plotLayoutExpression <- function(gene="MALAT1"){
           theme_minimal() + 
           theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
           theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
-          xlab("Dimension 1") + ylab("Dimension 2")    
-
- }else{
+          xlab("Dimension 1") + ylab("Dimension 2")
+    }else{
     message(gene," was not detected in the expression matrix")
- }
+    }
 }
 
+sce_ctrl <- sce_ctrl[calculateAverage(sce_ctrl)>0.01,]
+decomp  <- modelGeneVar(sce_ctrl)
+hvgs    <- rownames(decomp)[decomp$FDR < 0.01]
+length(hvgs)
+#
+library(irlba)
+pca     <- prcomp_irlba(t(logcounts(sce_ctrl[hvgs,])), n = 30)
+rownames(pca$x) <- colnames(sce_ctrl)
+#tsne    <- Rtsne(pca$x, pca = FALSE, check_duplicates = FALSE, num_threads=30)
+library(umap)
+library(reticulate)
+use_condaenv(condaenv="scanpy-p3.9")
+layout  <- umap(pca$x, method="umap-learn", umap_learn_args=c("n_neighbors", "n_epochs", "min_dist"), n_neighbors=30, min_dist=.25)
+
+df_plot <- data.frame(
+ meta,
+ #tSNE1    = tsne$Y[, 1],
+ #tSNE2    = tsne$Y[, 2], 
+ UMAP1 = layout$layout[,1],
+ UMAP2 = layout$layout[,2] 
+)
+
+plotLayoutExpression()
+saveRDS(df_plot, ""/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/umap_sce.rds"")
+
+
+
+
+
+
+
+##to be edited
 plotLayoutLeiden <- function(layout="UMAP"){
   require(ggplot2)
   if (layout=="FA"){ 
