@@ -203,4 +203,4 @@ plotViolinExpressionLeiden <- function(gene="TTR"){
     }
 }
 
-save.image(file='/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/plots_Ilaria_PB_28March2023.RData')
+save.image(file='/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/celltype_annotation/plots_Ilaria_PB_28March2023.RData')
