@@ -1,5 +1,4 @@
 library(ggplot2)
-library(Seurat)
 
 setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/scanpy")
 
