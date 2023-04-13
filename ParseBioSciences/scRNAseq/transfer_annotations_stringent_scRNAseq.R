@@ -52,8 +52,6 @@ meta <- cbind(colData(sce_pb), seurat_prediction=seurat_query$predicted.id, seur
 
 saveRDS(meta, paste0(path2data,'transferred_annot_meta_stringent.rds'))
 
-
-
 sce_pb <- logNormCounts(sce_pb)
 
 sce_pb <- sce_pb[calculateAverage(sce_pb)>0.01,]
@@ -116,3 +114,30 @@ ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction))) +
   guides(colour = guide_legend(override.aes = list(size=7))) +
   facet_wrap(~seurat_prediction)
 ggsave("umap_split_transfer_label_stringent.pdf")
+
+df_plot$seurat_prediction_cutoff <- rep("-",nrow(df_plot))
+df_plot$seurat_prediction_cutoff[df_plot$seurat_max.score > .5] <- as.character(df_plot$seurat_prediction[df_plot$seurat_max.score > .5])
+plot.index <- order(df_plot$seurat_prediction_cutoff)
+
+pdf("transfer_label_mapscore_thr_stringent.pdf", width=12, height=8)
+ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction_cutoff))) +
+geom_point(size = 1) +
+scale_color_manual(values=population_colours, name = "Cell population mapped", labels = names(population_colours)) +
+theme_minimal() +
+theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+guides(colour = guide_legend(override.aes = list(size=7)))
+dev.off()
+
+
+setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/scanpy/')
+
+
+sce_ctrl  <- sce_pb[,grep("CTRL",meta$condition)]
+meta_ctrl <- meta[grep("CTRL",meta$condition),]
+meta_ctrl <- meta_ctrl[colData(sce_ctrl)$doublet_class == "singlet",]
+sce_ctrl  <- sce_ctrl[,colData(sce_ctrl)$doublet_class == "singlet"]
+write.table(as.matrix(logcounts(sce_ctrl)),"normalised_counts_ctrl_stringent.tab", sep="\t", row.names=FALSE, quote=FALSE)
+writeLines(colnames(sce_ctrl),"cells_ctrl_stringent.txt")
+writeLines(rownames(sce_ctrl),"genes_ctrl_stringent.txt")
+write.table(meta_ctrl,"cell_metadata_ctrl_stringent.tab", sep="\t", row.names=FALSE, quote=FALSE)
