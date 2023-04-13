@@ -214,7 +214,6 @@ ggplot(df_plot[plot.index,], aes(x = tSNE1, y = tSNE2, col = factor(doublet))) +
   scale_color_manual(values=c("gray","#0169c1"), name = "") +
   labs(x = "Dim 1", y = "Dim 2") +
   theme_minimal() + #theme(legend.position = "none") +
-  guides(colour = guide_legend(override.aes = list(size=7))) +
   theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
   theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
   guides(colour = guide_legend(override.aes = list(size=7)))
@@ -225,7 +224,6 @@ ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = factor(doublet))) +
   scale_color_manual(values=c("gray","#0169c1"), name = "") +
   labs(x = "Dim 1", y = "Dim 2") +
   theme_minimal() + #theme(legend.position = "none") +
-  guides(colour = guide_legend(override.aes = list(size=7))) +
   theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
   theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
   guides(colour = guide_legend(override.aes = list(size=7)))
