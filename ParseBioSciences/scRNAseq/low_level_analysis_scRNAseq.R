@@ -284,5 +284,16 @@ dev.off()
 
 saveRDS(sce,paste0(path2data,"sce.rds"))
 
+############################################
+######## Generate output for sctour ########
+setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/sctour")
 
+sce <- readRDS(paste0(path2data,"sce.rds"))
+sce <- sce[,colData(sce)$doublet_class == "singlet"]
 
+writeMM(t(counts(sce)), "raw_counts.mtx")
+writeLines(colnames(sce), "cells.txt")
+writeLines(rownames(sce), "genes.txt")
+
+meta <- cbind(cell=rownames(colData(sce)), colData(sce))
+write.csv(data.frame(meta), file="metadata.csv", row.names=FALSE, quote=FALSE)
