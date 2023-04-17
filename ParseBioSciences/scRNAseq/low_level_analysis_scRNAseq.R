@@ -296,4 +296,10 @@ writeLines(colnames(sce), "cells.txt")
 writeLines(rownames(sce), "genes.txt")
 
 meta <- cbind(cell=rownames(colData(sce)), colData(sce))
-write.csv(data.frame(meta), file="metadata.csv", row.names=FALSE, quote=FALSE)
+write.table(data.frame(meta), file="metadata.tab", sep="\t", row.names=FALSE, quote=FALSE)
+
+sce_filt <- sce[calculateAverage(sce)>0.01,]
+sce_filt <- logNormCounts(sce_filt)
+writeMM(t(logcounts(sce_filt)), "norm_counts.mtx", sep="\t")
+writeLines(colnames(sce_filt), "cells_norm.txt")
+writeLines(rowData(sce_filt)$gene_name, "genes_norm.txt")
