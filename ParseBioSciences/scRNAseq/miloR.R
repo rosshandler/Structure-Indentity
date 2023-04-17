@@ -88,40 +88,40 @@ milo.res10 <- testNhoods(milo.obj, design=~condition+0, design.df=milo.design,
 
 milo.obj <- buildNhoodGraph(milo.obj)
 
-par(mfrow=c(3,4))
-pdf("miloR.pdf",width=12,height=6)
 
-plotNhoodGraphDA(milo.obj, milo.res0, alpha=0.5) +
+p0 <- plotNhoodGraphDA(milo.obj, milo.res0, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("CTRL_55 - CTRL_45")
 
-plotNhoodGraphDA(milo.obj, milo.res1, alpha=0.5) +
+p1 <- plotNhoodGraphDA(milo.obj, milo.res1, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("DISS_48 - CTRL_45")
 
-plotNhoodGraphDA(milo.obj, milo.res2, alpha=0.5) +
+p2 <- plotNhoodGraphDA(milo.obj, milo.res2, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("DISS_48 - CTRL_55")
 
-plotNhoodGraphDA(milo.obj, milo.res3, alpha=0.5) +
+p3 <- plotNhoodGraphDA(milo.obj, milo.res3, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("DISS_55 - CTRL_45")
 
-plotNhoodGraphDA(milo.obj, milo.res4, alpha=0.5) +
+p4 <- plotNhoodGraphDA(milo.obj, milo.res4, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("DISS_55 - CTRL_55")
 
-plotNhoodGraphDA(milo.obj, milo.res5, alpha=0.5) +
+p5 <- plotNhoodGraphDA(milo.obj, milo.res5, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("EMB_55 - CTRL_55")
 
-plotNhoodGraphDA(milo.obj, milo.res6, alpha=0.5) +
+p6 <- plotNhoodGraphDA(milo.obj, milo.res6, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("DISS_48 - DISS_55")
 
-plotNhoodGraphDA(milo.obj, milo.res7, alpha=0.5) +
+p7 <- plotNhoodGraphDA(milo.obj, milo.res7, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("CTRL_70 - CTRL_55")
 
-plotNhoodGraphDA(milo.obj, milo.res8, alpha=0.5) +
+p8 <- plotNhoodGraphDA(milo.obj, milo.res8, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("DISS_70 - DISS_48")
 
-plotNhoodGraphDA(milo.obj, milo.res9, alpha=0.5) +
+p9 <- plotNhoodGraphDA(milo.obj, milo.res9, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("DISS_70 - DISS_55")
 
-plotNhoodGraphDA(milo.obj, milo.res10, alpha=0.5) +
+p10 <- plotNhoodGraphDA(milo.obj, milo.res10, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("DISS_70 - CTRL_70")
 
+pdf("miloR.pdf",width=8,height=6)
+egg::ggarrange(p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10, nrow = 3, ncol = 4)
 dev.off()
