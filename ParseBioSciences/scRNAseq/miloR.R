@@ -71,7 +71,7 @@ milo.res4 <- testNhoods(milo.obj, design=~condition+0, design.df=milo.design,
 milo.res5 <- testNhoods(milo.obj, design=~condition+0, design.df=milo.design,
   model.contrasts="conditionEMB_55 - conditionCTRL_55")
 
-milo.res6 <- testNhoods(milo.obj, design=~condition+0, design.df=,
+milo.res6 <- testNhoods(milo.obj, design=~condition+0, design.df=milo.design,
   model.contrasts="conditionDISS_48 - conditionDISS_55")
 
 milo.res7 <- testNhoods(milo.obj, design=~condition+0, design.df=milo.design,
@@ -89,7 +89,7 @@ milo.res10 <- testNhoods(milo.obj, design=~condition+0, design.df=milo.design,
 milo.obj <- buildNhoodGraph(milo.obj)
 
 par(mfrow=c(3,4))
-pdf("milo0.pdf",width=12,height=6)
+pdf("miloR.pdf",width=12,height=6)
 
 plotNhoodGraphDA(milo.obj, milo.res0, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("CTRL_55 - CTRL_45")
@@ -115,13 +115,13 @@ plotNhoodGraphDA(milo.obj, milo.res6, alpha=0.5) +
 plotNhoodGraphDA(milo.obj, milo.res7, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("CTRL_70 - CTRL_55")
 
-plotNhoodGraphDA(milo.obj, milo.res0, alpha=0.5) +
+plotNhoodGraphDA(milo.obj, milo.res8, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("DISS_70 - DISS_48")
 
-plotNhoodGraphDA(milo.obj, milo.res0, alpha=0.5) +
+plotNhoodGraphDA(milo.obj, milo.res9, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("DISS_70 - DISS_55")
 
-plotNhoodGraphDA(milo.obj, milo.res0, alpha=0.5) +
+plotNhoodGraphDA(milo.obj, milo.res10, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("DISS_70 - CTRL_70")
 
 dev.off()
