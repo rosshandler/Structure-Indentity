@@ -68,14 +68,18 @@ length(hvgs)
 pca <- prcomp_irlba(t(logcounts(sce_filt[hvgs,])), n = 30)
 rownames(pca$x) <- colnames(sce_filt)
 
-umap <- read.csv("umap_layout.csv", header = FALSE)
+meta_scanpy_dmap <- read.csv("metadata_scanpy_dmap_res2.5.csv", header = TRUE)[,-1]
+colData(sce_pb)$leiden_dmap <- meta_scanpy_dmap$leiden_dmap
+
+umap <- read.csv("umap_layout_dmap_res2.5.csv", header = FALSE)
 colnames(umap) <- c("UMAP1","UMAP2")
 rownames(umap) <- colnames(sce_filt)
 
 reducedDim(sce_pb, "PCA")  <- as.matrix(pca$x)
 reducedDim(sce_pb, "UMAP") <- umap
 
-saveRDS(colData(sce_pb), paste0(path2data,'sce_transferred_annot.rds'))
+colnames(sce_pb) <- colData(sce_pb)$cell
+saveRDS(sce_pb, paste0(path2data,'sce_transferred_annot.rds'))
 
 ##
 ## Plotting
