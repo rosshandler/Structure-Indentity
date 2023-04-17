@@ -12,7 +12,8 @@ use_condaenv(condaenv="scanpy-p3.9")
 path2data    <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/'
 path2data10x <- '/data1/ivanir/Ilaria2021/UCSC_data/'
 
-sce_pb  <- readRDS(paste0(path2data, 'sce.rds'))
+sce_pb <- readRDS(paste0(path2data, 'sce.rds'))
+sce_pb <- sce_pb[,colData(sce_pb)$doublet_class == "singlet"]
 colnames(sce_pb) <- paste0(colnames(sce_pb),'_pb')
 rownames(sce_pb) <- rowData(sce_pb)$gene_name
 sce_10x <- readRDS(paste0(path2data10x, 'sce2023.rds'))
@@ -48,36 +49,45 @@ predictions    <- TransferData(anchorset = seurat_anchors, refdata = colData(sce
     dims = 1:30)
 seurat_query   <- AddMetaData(object = seurat_query, metadata = predictions)
 
+setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/sctour")
+
+meta_scanpy <- read.csv("metadata_scanpy.csv", header = TRUE)[,-1]
+colData(sce_pb) <- DataFrame(meta_scanpy)
+
 meta <- cbind(colData(sce_pb), seurat_prediction=seurat_query$predicted.id, seurat_max.score=seurat_query$prediction.score.max)
+colData(sce_pb) <- DataFrame(meta)
 
-saveRDS(meta, paste0(path2data,'transferred_annot_meta.rds'))
+sce_filt <- sce_pb[calculateAverage(sce_pb)>0.01,]
+sce_filt <- logNormCounts(sce_filt)
 
-##
-meta <- readRDS(paste0(path2data,'transferred_annot_meta.rds'))
-
-
-sce_pb <- logNormCounts(sce_pb)
-
-sce_pb <- sce_pb[calculateAverage(sce_pb)>0.01,]
-
-decomp  <- modelGeneVar(sce_pb)
+decomp  <- modelGeneVar(sce_filt)
 hvgs    <- rownames(decomp)[decomp$FDR < 0.1]
 length(hvgs)
-#[1] 625
-pca     <- prcomp_irlba(t(logcounts(sce_pb[hvgs,])), n = 30)
-rownames(pca$x) <- colnames(sce_pb)
-tsne    <- Rtsne(pca$x, pca = FALSE, check_duplicates = FALSE, num_threads=30)
-layout  <- umap(pca$x, method="umap-learn", umap_learn_args=c("n_neighbors", "n_epochs", "min_dist"), n_neighbors=30, min_dist=.25)
+#[1] 783
+
+pca <- prcomp_irlba(t(logcounts(sce_filt[hvgs,])), n = 30)
+rownames(pca$x) <- colnames(sce_filt)
+
+umap <- read.csv("umap_layout.csv", header = FALSE)
+colnames(umap) <- c("UMAP1","UMAP2")
+rownames(umap) <- colnames(sce_filt)
+
+reducedDim(sce_pb, "PCA")  <- as.matrix(pca$x)
+reducedDim(sce_pb, "UMAP") <- umap
+
+saveRDS(colData(sce_pb), paste0(path2data,'sce_transferred_annot.rds'))
+
+##
+## Plotting
+##
 
 df_plot <- data.frame(
- meta,
- tSNE1    = tsne$Y[, 1],
- tSNE2    = tsne$Y[, 2], 
- UMAP1 = layout$layout[,1],
- UMAP2 = layout$layout[,2] 
+ colData(sce_pb),umap
 )
 
 ####################
+setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/plots')
+
 population_colours <- c(
 "Mitotic RG" = "#005dd8",
 "Cycling RG" = "#4aadd6",
@@ -97,7 +107,6 @@ population_colours <- c(
 "DL neurons"   = "#9e5d56",
 "Mature excitatory neurons"="#d3b000")
 
-setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/plots')
 
 pdf("transfer_label.pdf", width=12, height=8)
 ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction))) +
@@ -195,6 +204,12 @@ theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=el
 theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
 ggsave("umap_doublet_score.pdf")
 
+
+
+
+
+
+#### Deprecated-to be deleted
 setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/scanpy/')
 
 sce_pb_qc <- sce_pb[,colData(sce_pb)$doublet_class == "singlet"]
