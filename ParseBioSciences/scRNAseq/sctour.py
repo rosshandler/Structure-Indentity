@@ -97,4 +97,33 @@ np.savetxt('umap_layout.csv', scran_norm_adata.obsm['X_umap'], delimiter=',')
 
 sc.write('scanpy', scran_norm_adata)
 
+#######
+
+adata = sc.read('scanpy')
+
+sc.tl.diffmap(adata)
+
+sc.pp.neighbors(adata, n_neighbors=15, use_rep='X_diffmap')
+sc.tl.leiden(adata, resolution=.25)
+#sc.tl.leiden(adata, resolution=.1)
+
+adata.obs = adata.obs.rename({'leiden': 'leiden_dmap'}, axis='columns')
+
+sc.tl.paga(adata, groups='leiden_dmap')
+sc.pl.paga(adata)
+
+sc.tl.umap(adata, min_dist=0.25, init_pos='paga')
+sc.tl.draw_graph(adata, layout='fa', init_pos='paga')
+
+sc.pl.umap(adata, color='leiden_dmap')
+sc.pl.draw_graph(adata, color='leiden_dmap')
+
+adata.obs.to_csv('metadata_scanpy_dmap_res2.5.csv')
+adata.obs.to_csv('metadata_scanpy_dmap_res0.1.csv')
+
+np.savetxt('umap_layout_dmap_res2.5.csv', adata.obsm['X_umap'], delimiter=',')
+np.savetxt('umap_layout_dmap_res0.1.csv', adata.obsm['X_umap'], delimiter=',')
+
+sc.write('scanpy_dmap_res2.5', adata)
+sc.write('scanpy_dmap_res0.1', adata)
 
