@@ -122,6 +122,6 @@ p9 <- plotNhoodGraphDA(milo.obj, milo.res9, alpha=0.5) +
 p10 <- plotNhoodGraphDA(milo.obj, milo.res10, alpha=0.5) +
   plot_layout(guides="collect") + ggtitle("DISS_70 - CTRL_70")
 
-pdf("miloR.pdf",width=24,height=16)
+pdf("miloR.pdf",width=26,height=16)
 egg::ggarrange(p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10, nrow = 3, ncol = 4)
 dev.off()
