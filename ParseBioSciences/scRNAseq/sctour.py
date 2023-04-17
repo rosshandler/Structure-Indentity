@@ -79,7 +79,7 @@ cell_cycle_genes = [x for x in cell_cycle_genes if x in scran_norm_adata.var_nam
 sc.tl.score_genes_cell_cycle(scran_norm_adata, s_genes=s_genes, g2m_genes=g2m_genes)
 
 sc.tl.leiden(scran_norm_adata, resolution=1)
-sc.pl.umap(scran_norm_adata, color='leiden')
+#sc.pl.umap(scran_norm_adata, color='leiden')
 
 scran_norm_adata.obs['ptime'] = adata.obs['ptime'].values
 scran_norm_adata.obsm['X_TNODE'] = adata.obsm['X_TNODE']
@@ -91,10 +91,10 @@ sc.pl.umap(scran_norm_adata, color='ptime', size=20, ax=axs[1], show=False)
 sct.vf.plot_vector_field(scran_norm_adata, zs_key='X_TNODE', vf_key='X_VF', use_rep_neigh='X_TNODE', color='day', ax=axs[2], legend_loc='none', frameon=False, size=100, alpha=0.2)
 plt.show()
 
-adata.obs.to_csv('metadata_scanpy.csv')
+scran_norm_adata.obs.to_csv('metadata_scanpy.csv')
 
-np.savetxt('umap_layout.csv', adata.obsm['X_umap'], delimiter=',')
+np.savetxt('umap_layout.csv', scran_norm_adata.obsm['X_umap'], delimiter=',')
 
-sc.write('scanpy', adata)
+sc.write('scanpy', scran_norm_adata)
 
 
