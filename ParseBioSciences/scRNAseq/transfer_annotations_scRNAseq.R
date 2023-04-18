@@ -68,12 +68,12 @@ length(hvgs)
 pca <- prcomp_irlba(t(logcounts(sce_filt[hvgs,])), n = 30)
 rownames(pca$x) <- colnames(sce_filt)
 
-meta_scanpy_dmap <- read.csv("metadata_scanpy_dmap_res2.5.csv", header = TRUE)[,-1]
+meta_scanpy_dmap <- read.csv("metadata_markers_hvgs.csv", header = TRUE)[,-1]
 colData(sce_pb)$leiden_dmap <- meta_scanpy_dmap$leiden_dmap
 
-umap <- read.csv("umap_layout_dmap_res2.5.csv", header = FALSE)
+umap <- read.csv("umap_layout_markers_hvgs", header = FALSE)
 colnames(umap) <- c("UMAP1","UMAP2")
-rownames(umap) <- colnames(sce_filt)
+rownames(umap) <- colnames(sce_pb)
 
 reducedDim(sce_pb, "PCA")  <- as.matrix(pca$x)
 reducedDim(sce_pb, "UMAP") <- umap
