@@ -127,3 +127,42 @@ np.savetxt('umap_layout_dmap_res0.1.csv', adata.obsm['X_umap'], delimiter=',')
 sc.write('scanpy_dmap_res2.5', adata)
 sc.write('scanpy_dmap_res0.1', adata)
 
+#######
+
+adata = sc.read('norm_counts_hvgs.mtx')
+
+file = open('cells_norm_hvgs.txt', 'r')
+cells  = file.read().splitlines()
+
+file = open('genes_norm_hvgs.txt', 'r')
+genes   = file.read().splitlines()
+
+adata.obs_names = cells
+adata.var_names = genes
+
+adata.obs =  pd.read_csv('metadata.tab',sep="\t")
+
+sc.tl.pca(adata, svd_solver='arpack')
+sc.pp.neighbors(adata, n_neighbors=15, n_pcs=30)
+
+sc.tl.diffmap(adata)
+
+sc.pp.neighbors(adata, n_neighbors=15, use_rep='X_diffmap')
+sc.tl.leiden(adata, resolution=.25)
+
+adata.obs = adata.obs.rename({'leiden': 'leiden_dmap'}, axis='columns')
+
+sc.tl.paga(adata, groups='leiden_dmap')
+sc.pl.paga(adata)
+
+sc.tl.umap(adata, min_dist=0.25, init_pos='paga')
+sc.tl.draw_graph(adata, layout='fa', init_pos='paga')
+
+sc.pl.umap(adata, color='leiden_dmap')
+sc.pl.draw_graph(adata, color='leiden_dmap')
+
+adata.obs.to_csv('metadata_markers_hvgs.csv')
+
+np.savetxt('umap_layout_markers_hvgs', adata.obsm['X_umap'], delimiter=',')
+
+sc.write('scanpy_markers_hvgs', adata)
