@@ -1,9 +1,9 @@
 library(scran)
 
 setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/celltype_annotation/')
-load('plots_Ilaria_PB_28March2023.RData')
+load('plots_Ilaria_PB_17Apr2023.RData')
 
-markers <- findMarkers(sce_ctrl, groups = df_plot$leiden, direction = "up")
+markers <- findMarkers(sce, groups = df_plot$leiden_dmap, direction = "up")
 
 for (clus in as.character(1:17)){
   markers_clus <- markers[[clus]]
