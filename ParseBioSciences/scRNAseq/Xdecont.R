@@ -1,51 +1,71 @@
 library(scran)
-library(scran)
+library(celda)
 library(irlba)
-library(Rtsne)
+library(scater)
 library(Matrix)
 library(ggplot2)
 library(biomaRt)
 library(viridis)
-library(scDblFinder)
 
 library(umap)
+library(leiden)
 library(reticulate)
 use_condaenv(condaenv="scanpy-p3.9")
 
 umap = import('umap')
 
 ############################################
-######## Doublet exploration ###############
+######## Xdecont exploration ###############
 path2data <- "/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/"
+markers   <- readLines("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/geneMarkers.txt")
 
 sce <- readRDS(paste0(path2data,"sce.rds"))
-sce <- readRDS(paste0(path2data,"sce_stringent.rds"))
+sce <- logNormCounts(sce)
 
-hist(colData(sce)$doublet_score)
+sce_hvgs <- sce[calculateAverage(sce)>0.01,]
+decomp   <- modelGeneVar(sce_hvgs)
+hvgs     <- rownames(decomp)[decomp$FDR < 0.01]
+markers <- intersect(markers, rownames(sce))
+hvgs    <- union(hvgs, markers)
+pca     <- prcomp_irlba(t(logcounts(sce[hvgs,])), n = 30)
+rownames(pca$x) <- colnames(sce)
 
-hist(colData(sce[,colData(sce)$doublet_class == "singlet"])$doublet_score)
+graph <- buildSNNGraph(pca$x, d = NA, transposed = TRUE)
+set.seed(42)
+clusters <- leiden(graph, resolution_parameter = 2)
+names(clusters) <-  colData(sce)$cell
 
-dim(sce)
-#[1] 62704 41576
-dim(sce[,colData(sce)$doublet_class == "singlet"])
-#[1] 62704 39078
-sum(colData(sce[,colData(sce)$doublet_class == "singlet"])$doublet_score < .8)
-#[1] 38780
-sum(colData(sce[,colData(sce)$doublet_class == "singlet"])$doublet_score < .6)
-#[1] 37200
-sum(colData(sce[,colData(sce)$doublet_class == "singlet"])$doublet_score < .5)
-#[1] 36228
+sce <- decontX(sce, z=clusters)
 
+saveRDS(sce, paste0(path2data,"sce_decontX.rds"))
+
+setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/QC')
+
+pdf("hist_fraction_contamination.pdf")
+hist(colData(sce)$decontX_contamination, main="", xlab="Fraction of contamination")
+abline(v=median(colData(sce)$decontX_contamination), col="red")
+dev.off()
+
+pdf("hist_doublet_score_before_qc.pdf")
+hist(colData(sce)$doublet_score, main="", xlab="Doublet score")
+dev.off()
+
+pdf("hist_doublet_score_after_qc.pdf")
+hist(colData(sce[,colData(sce)$doublet_class == "singlet"])$doublet_score, main="", xlab="Doublet score")
+dev.off()
+
+sce <- logNormCounts(sce, exprs_values = "decontXcounts", name = "decontXlogcounts")
+    
 sce <- sce[,colData(sce)$doublet_class == "singlet"]
 
-sce_filt <- sce[calculateAverage(sce)>0.01,colData(sce[,
-  colData(sce)$doublet_class == "singlet"])$doublet_score < .1]
+gexp <- as.matrix(decontXlogcounts(sce))
+rownames(gexp) <- rowData(sce)$gene_name
 
-sce_filt <- logNormCounts(sce_filt)
-gexp <- as.matrix(logcounts(sce_filt))
-rownames(gexp) <- rowData(sce_filt)$gene_name
+calculateAverage(sce,assay.type = "decontXcounts")
 
-decomp  <- modelGeneVar(sce_filt)
+sce_filt <- sce[rowMeans(decontXcounts(sce))>0.01, colData(sce)$doublet_class == "singlet"]
+
+decomp  <- modelGeneVar(sce_filt, assay.type = "decontXlogcounts")
 hvgs    <- rownames(decomp)[decomp$FDR < 0.1]
 length(hvgs)
 #[1] 499
