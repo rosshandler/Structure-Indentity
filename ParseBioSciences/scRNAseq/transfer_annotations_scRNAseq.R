@@ -12,8 +12,9 @@ use_condaenv(condaenv="scanpy-p3.9")
 path2data    <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/'
 path2data10x <- '/data1/ivanir/Ilaria2021/UCSC_data/'
 
-sce_pb <- readRDS(paste0(path2data, 'sce.rds'))
-sce_pb <- sce_pb[,colData(sce_pb)$doublet_class == "singlet"]
+#sce_pb <- readRDS(paste0(path2data, 'sce.rds'))
+#sce_pb <- sce_pb[,colData(sce_pb)$doublet_class == "singlet"]
+sce_pb <- readRDS(paste0(path2data, 'sce_hardQC.rds'))
 colnames(sce_pb) <- paste0(colnames(sce_pb),'_pb')
 rownames(sce_pb) <- rowData(sce_pb)$gene_name
 sce_10x <- readRDS(paste0(path2data10x, 'sce2023.rds'))
@@ -36,7 +37,7 @@ seurat_list  <- SplitObject(seurat_integ, split.by = "batch")
 for (i in 1:length(x = seurat_list)) {
    seurat_list[[i]] <- NormalizeData(object = seurat_list[[i]], verbose = TRUE)
    seurat_list[[i]] <- FindVariableFeatures(object = seurat_list[[i]], selection.method = "vst", 
-        nfeatures = 500, verbose = TRUE)
+        nfeatures = 2000, verbose = TRUE)
 }
 
 reference_dataset <- which(names(seurat_list) == "reference")
@@ -49,7 +50,7 @@ predictions    <- TransferData(anchorset = seurat_anchors, refdata = colData(sce
     dims = 1:30)
 seurat_query   <- AddMetaData(object = seurat_query, metadata = predictions)
 
-setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/sctour")
+setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/scanpy")
 
 meta_scanpy <- read.csv("metadata_scanpy.csv", header = TRUE)[,-1]
 colData(sce_pb) <- DataFrame(meta_scanpy)
@@ -57,21 +58,20 @@ colData(sce_pb) <- DataFrame(meta_scanpy)
 meta <- cbind(colData(sce_pb), seurat_prediction=seurat_query$predicted.id, seurat_max.score=seurat_query$prediction.score.max)
 colData(sce_pb) <- DataFrame(meta)
 
-sce_filt <- sce_pb[calculateAverage(sce_pb)>0.01,]
-sce_filt <- logNormCounts(sce_filt)
+sce_filt <- sce_pb[calculateAverage(sce_pb, assay.type = "decontXcounts")>0.01,]
+rownames(sce_filt) <- rowData(sce_filt)$gene_name
 
-decomp  <- modelGeneVar(sce_filt)
+decomp  <- modelGeneVar(sce_filt, assay.type = "decontXlogcounts")
 hvgs    <- rownames(decomp)[decomp$FDR < 0.1]
 length(hvgs)
-#[1] 783
-
-pca <- prcomp_irlba(t(logcounts(sce_filt[hvgs,])), n = 30)
+pca     <- prcomp_irlba(t(logcounts(sce_filt,assay.type = "decontXcounts")[hvgs,]), n = 30)
 rownames(pca$x) <- colnames(sce_filt)
 
-meta_scanpy_dmap <- read.csv("metadata_markers_hvgs.csv", header = TRUE)[,-1]
+meta_scanpy_dmap <- read.csv("metadata_scanpy_dmap_res0.25.csv", header = TRUE)[,-1]
+meta_scanpy_dmap <- read.csv("metadata_scanpy_dmap_res0.25.csv", header = TRUE)[,-1]
 colData(sce_pb)$leiden_dmap <- meta_scanpy_dmap$leiden_dmap
 
-umap <- read.csv("umap_layout_markers_hvgs", header = FALSE)
+umap <- read.csv("umap_layout.csv", header = FALSE)
 colnames(umap) <- c("UMAP1","UMAP2")
 rownames(umap) <- colnames(sce_pb)
 
