@@ -22,7 +22,7 @@ sc.pp.calculate_qc_metrics(adata, percent_top=None, log1p=False, inplace=True)
 adata.obs
 
 sc.pp.filter_genes(adata, min_cells=20)
-sc.pp.highly_variable_genes(adata, flavor='seurat_v3', n_top_genes=2000, subset=True)
+sc.pp.highly_variable_genes(adata, flavor='seurat_v3', n_top_genes=3000, subset=True)
 
 tnode = sct.train.Trainer(adata, loss_mode='nb')
 tnode.train()
@@ -49,7 +49,8 @@ sc.write('sctour', adata)
 #########################
 
 adata = sc.read('sctour')
-#sc.pl.umap(adata, color='day')
+
+os.chdir('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/scanpy')
 
 scran_norm_adata = sc.read('norm_counts.mtx')
 
@@ -63,7 +64,7 @@ scran_norm_adata.obs_names = cells
 scran_norm_adata.var_names = genes
 
 scran_norm_adata.obs =  pd.read_csv('metadata.tab',sep="\t")
-sc.pp.highly_variable_genes(scran_norm_adata, n_top_genes=1000)
+sc.pp.highly_variable_genes(scran_norm_adata, n_top_genes=3000)
 sc.tl.pca(scran_norm_adata, svd_solver='arpack')
 sc.pp.neighbors(scran_norm_adata, n_neighbors=15, n_pcs=30)
 sc.tl.umap(scran_norm_adata, min_dist=0.25)
@@ -94,6 +95,7 @@ plt.show()
 scran_norm_adata.obs.to_csv('metadata_scanpy.csv')
 
 np.savetxt('umap_layout.csv', scran_norm_adata.obsm['X_umap'], delimiter=',')
+np.savetxt('fa2_layout.csv', scran_norm_adata.obsm['X_draw_graph_fa'], delimiter=',')
 
 sc.write('scanpy', scran_norm_adata)
 
@@ -113,56 +115,56 @@ sc.tl.paga(adata, groups='leiden_dmap')
 sc.pl.paga(adata)
 
 sc.tl.umap(adata, min_dist=0.25, init_pos='paga')
-sc.tl.draw_graph(adata, layout='fa', init_pos='paga')
+#sc.tl.draw_graph(adata, layout='fa', init_pos='paga')
 
 sc.pl.umap(adata, color='leiden_dmap')
-sc.pl.draw_graph(adata, color='leiden_dmap')
+#sc.pl.draw_graph(adata, color='leiden_dmap')
 
-adata.obs.to_csv('metadata_scanpy_dmap_res2.5.csv')
-adata.obs.to_csv('metadata_scanpy_dmap_res0.1.csv')
+adata.obs.to_csv('metadata_scanpy_dmap_res0.25.csv')
+#adata.obs.to_csv('metadata_scanpy_dmap_res0.1.csv')
 
-np.savetxt('umap_layout_dmap_res2.5.csv', adata.obsm['X_umap'], delimiter=',')
-np.savetxt('umap_layout_dmap_res0.1.csv', adata.obsm['X_umap'], delimiter=',')
+np.savetxt('umap_layout_dmap_res0.25.csv', adata.obsm['X_umap'], delimiter=',')
+#np.savetxt('umap_layout_dmap_res0.1.csv', adata.obsm['X_umap'], delimiter=',')
 
-sc.write('scanpy_dmap_res2.5', adata)
-sc.write('scanpy_dmap_res0.1', adata)
+sc.write('scanpy_dmap_res0.25', adata)
+#sc.write('scanpy_dmap_res0.1', adata)
 
 #######
+#deprecated
+#adata = sc.read('norm_counts_hvgs.mtx')
 
-adata = sc.read('norm_counts_hvgs.mtx')
+#file = open('cells_norm_hvgs.txt', 'r')
+#cells  = file.read().splitlines()
 
-file = open('cells_norm_hvgs.txt', 'r')
-cells  = file.read().splitlines()
+#file = open('genes_norm_hvgs.txt', 'r')
+#genes   = file.read().splitlines()
 
-file = open('genes_norm_hvgs.txt', 'r')
-genes   = file.read().splitlines()
+#adata.obs_names = cells
+#adata.var_names = genes
 
-adata.obs_names = cells
-adata.var_names = genes
+#adata.obs =  pd.read_csv('metadata.tab',sep="\t")
 
-adata.obs =  pd.read_csv('metadata.tab',sep="\t")
+#sc.tl.pca(adata, svd_solver='arpack')
+#sc.pp.neighbors(adata, n_neighbors=15, n_pcs=30)
 
-sc.tl.pca(adata, svd_solver='arpack')
-sc.pp.neighbors(adata, n_neighbors=15, n_pcs=30)
+#sc.tl.diffmap(adata)
 
-sc.tl.diffmap(adata)
+#sc.pp.neighbors(adata, n_neighbors=15, use_rep='X_diffmap')
+#sc.tl.leiden(adata, resolution=.25)
 
-sc.pp.neighbors(adata, n_neighbors=15, use_rep='X_diffmap')
-sc.tl.leiden(adata, resolution=.25)
+#adata.obs = adata.obs.rename({'leiden': 'leiden_dmap'}, axis='columns')
 
-adata.obs = adata.obs.rename({'leiden': 'leiden_dmap'}, axis='columns')
+#sc.tl.paga(adata, groups='leiden_dmap')
+#sc.pl.paga(adata)
 
-sc.tl.paga(adata, groups='leiden_dmap')
-sc.pl.paga(adata)
+#sc.tl.umap(adata, min_dist=0.25, init_pos='paga')
+#sc.tl.draw_graph(adata, layout='fa', init_pos='paga')
 
-sc.tl.umap(adata, min_dist=0.25, init_pos='paga')
-sc.tl.draw_graph(adata, layout='fa', init_pos='paga')
+#sc.pl.umap(adata, color='leiden_dmap')
+#sc.pl.draw_graph(adata, color='leiden_dmap')
 
-sc.pl.umap(adata, color='leiden_dmap')
-sc.pl.draw_graph(adata, color='leiden_dmap')
+#adata.obs.to_csv('metadata_markers_hvgs.csv')
 
-adata.obs.to_csv('metadata_markers_hvgs.csv')
+#np.savetxt('umap_layout_markers_hvgs', adata.obsm['X_umap'], delimiter=',')
 
-np.savetxt('umap_layout_markers_hvgs', adata.obsm['X_umap'], delimiter=',')
-
-sc.write('scanpy_markers_hvgs', adata)
+#sc.write('scanpy_markers_hvgs', adata)
