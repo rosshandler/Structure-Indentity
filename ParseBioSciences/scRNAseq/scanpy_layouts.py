@@ -100,6 +100,7 @@ np.savetxt('fa2_layout.csv', scran_norm_adata.obsm['X_draw_graph_fa'], delimiter
 sc.write('scanpy', scran_norm_adata)
 
 #######
+os.chdir('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/scanpy')
 
 adata = sc.read('scanpy')
 
