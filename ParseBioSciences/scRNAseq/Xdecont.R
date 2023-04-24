@@ -150,7 +150,7 @@ plotLayoutExpression("RORB")
 
 setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/sctour")
 
-writeMM(t(decontXcounts(sce_tmp)), "raw_counts.mtx")
+writeMM(t(ceiling(decontXcounts(sce_tmp))), "raw_counts.mtx")
 writeLines(colnames(sce_tmp), "cells.txt")
 writeLines(rownames(sce_tmp), "genes.txt")
 
