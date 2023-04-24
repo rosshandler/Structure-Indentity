@@ -46,7 +46,7 @@ leiden_colours <- c(
 "#757327",
 "#d48a3c",
 "#9c5e32")
-names(leiden_colours)<-1:21
+names(leiden_colours)<-0:20
 
 day_colours <- c(
 "#0054b9",
