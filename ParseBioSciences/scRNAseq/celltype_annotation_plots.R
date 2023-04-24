@@ -25,24 +25,28 @@ population_colours <- c(
 "Mature excitatory neurons"="#d3b000")
 
 leiden_colours <- c(
-"#da4b84",
-"#6bb442",
-"#ad5cd0",
-"#b8ae48",
-"#6861c8",
-"#dc9848",
-"#6582c7",
-"#d35a2c",
-"#48b6d2",
-"#cb4046",
-"#54ad7b",
-"#c24aa6",
-"#697730",
-"#c788ca",
-"#a16436",
-"#9d486a",
-"#df8081")
-names(cluster_colours)<-1:17
+"#d54d92",
+"#5cc556",
+"#b254bf",
+"#9cb735",
+"#6c69ca",
+"#cda937",
+"#5d8fcb",
+"#dc5b31",
+"#42bdc0",
+"#dd4663",
+"#56993f",
+"#c78acc",
+"#61bf8c",
+"#b63f37",
+"#407a48",
+"#9e4a6b",
+"#b5ae68",
+"#e18880",
+"#757327",
+"#d48a3c",
+"#9c5e32")
+names(leiden_colours)<-1:21
 
 day_colours <- c(
 "#0054b9",
@@ -51,8 +55,9 @@ day_colours <- c(
 names(day_colours) <-c("48","55","70")
 
 sce  <- readRDS("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/sce_transferred_annot.rds")
-sce  <- logNormCounts(sce)
-gexp <- logcounts(sce)
+gexp <- as.matrix(logcounts(sce,assay.type = "decontXcounts"))
+rownames(gexp) <- rowData(sce)$gene_name
+
 df_plot <- data.frame(colData(sce), reducedDim(sce, "UMAP"))
 
 plotLayoutExpression <- function(gene="TTR"){
@@ -160,4 +165,4 @@ plotViolinExpressionLeiden <- function(gene="TTR"){
     }
 }
 
-save.image(file='/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/celltype_annotation/plots_Ilaria_PB_17Apr2023.RData')
+save.image(file='/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/celltype_annotation/plots_Ilaria_PB_24Apr2023.RData')
