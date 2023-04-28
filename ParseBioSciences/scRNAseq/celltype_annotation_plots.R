@@ -94,7 +94,7 @@ plotLayoutCelltypeMapped <- function(layout="UMAP"){
 
 plotLayoutLeiden <- function(layout="UMAP"){
   require(ggplot2)
-    ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(leiden_dmap))) +
+    ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(leiden))) +
       geom_point(size = 1) +
       scale_color_manual(values=leiden_colours, name = "Leiden") +
       theme_minimal() + 
