@@ -8,15 +8,19 @@ library(ggplot2)
 library(patchwork)
 
 path2data   <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/'
-sce <- readRDS(paste0(path2data,"sce.rds"))
-sce <- sce[,colData(sce)$doublet_class == "singlet"]
+#sce <- readRDS(paste0(path2data,"sce.rds"))
+#sce <- sce[,colData(sce)$doublet_class == "singlet"]
 
-setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/sctour")
+#setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/sctour")
 
-umap <- read.csv("umap_layout.csv", header = FALSE)
-colnames(umap) <- c("UMAP1","UMAP2")
-rownames(umap) <- colnames(sce)
-meta <- read.csv("metadata_scanpy.csv", header = TRUE)[,-1]
+#umap <- read.csv("umap_layout.csv", header = FALSE)
+#colnames(umap) <- c("UMAP1","UMAP2")
+#rownames(umap) <- colnames(sce)
+#meta <- read.csv("metadata_scanpy.csv", header = TRUE)[,-1]
+
+sce  <- readRDS("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/sce_transferred_annot.rds")
+
+df_plot <- data.frame(colData(sce), reducedDim(sce, "UMAP"))
 
 sce_filt <- sce[calculateAverage(sce)>0.01,]
 sce_filt <- logNormCounts(sce_filt)
@@ -32,19 +36,20 @@ reducedDim(sce_filt, "PCA") <- as.matrix(pca$x)
 
 setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/miloR")
 
-milo.obj <- Milo(sce_filt)
+#milo.obj <- Milo(sce_filt)
+milo.obj <- Milo(sce)
 
 milo.obj <- buildGraph(milo.obj, k=20, d=30)
 milo.obj <- makeNhoods(milo.obj, k=20, d=30, refined=TRUE, prop=0.2)
 plotNhoodSizeHist(milo.obj)
 
 milo.obj <- calcNhoodDistance(milo.obj, d=30)
-milo.obj <- countCells(milo.obj, samples="sample_name", meta.data=meta)
+milo.obj <- countCells(milo.obj, samples="sample_name", meta.data=colData(sce))
 
-reducedDim(milo.obj, "UMAP") <- as.matrix(umap) 
+#reducedDim(milo.obj, "UMAP") <- as.matrix(umap) 
 saveRDS(milo.obj,"MiloRscRNASeqObject.rds")
 
-milo.design <- as.data.frame(xtabs(~ condition + sample_name, data=meta))
+milo.design <- as.data.frame(xtabs(~ condition + sample_name, data=data.frame(colData(sce))))
 milo.design <- milo.design[milo.design$Freq > 0, ]
 rownames(milo.design) <- milo.design$sample_name
 
