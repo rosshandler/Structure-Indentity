@@ -25,27 +25,28 @@ population_colours <- c(
 "Mature excitatory neurons"="#d3b000")
 
 leiden_colours <- c(
-"#d54d92",
-"#5cc556",
-"#b254bf",
-"#9cb735",
-"#6c69ca",
-"#cda937",
-"#5d8fcb",
-"#dc5b31",
-"#42bdc0",
-"#dd4663",
-"#56993f",
-"#c78acc",
-"#61bf8c",
-"#b63f37",
-"#407a48",
-"#9e4a6b",
-"#b5ae68",
-"#e18880",
-"#757327",
-"#d48a3c",
-"#9c5e32")
+"Differentiating RG 1"="#d54d92",
+"Neuronal 1"="#5cc556",
+"Differentiating RG 2"="#b254bf",
+"Chp"="#9cb735",
+"Glicolytic Neuronal"="#6c69ca",
+"Differentiating RG 3"="#cda937",
+"Differentiating RG 4"="#5d8fcb",
+"Migrating Neurons/DL Neurons"="#dc5b31",
+"Mitotic RG"="#42bdc0",
+"Differentiating RG 5"="#dd4663",
+"Migrating DL neurons 1"="#56993f",
+"Migrating DL neurons 2"="#c78acc",
+"Differentiating RG 6"="#61bf8c",
+"RG"="#b63f37",
+"Chp"="#407a48",
+"Chp/Neuronal 1"="#9e4a6b",
+"Neuronal 2"="#b5ae68",
+"Mature Excitatory Neurons"="#e18880",
+"Mitotic RG"="#757327",
+"Chp/Neuronal 2"="#d48a3c",
+"Axon Guiding/Maturing Neurons"="#9c5e32")
+leiden_labels <- names(leiden_colours)
 names(leiden_colours)<-0:20
 
 day_colours <- c(
@@ -96,13 +97,14 @@ plotLayoutLeiden <- function(layout="UMAP"){
   require(ggplot2)
     ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(leiden))) +
       geom_point(size = 1) +
-      scale_color_manual(values=leiden_colours, name = "Leiden") +
+      scale_color_manual(values=leiden_colours, labels=leiden_labels,name = "Leiden") +
       theme_minimal() + 
       labs(col="Leiden") +
       theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
       theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
       guides(colour = guide_legend(override.aes = list(size=7)))  
 }
+
 
 plotLayoutCondition <- function(layout="UMAP"){
   require(ggplot2)
@@ -166,3 +168,4 @@ plotViolinExpressionLeiden <- function(gene="TTR"){
 }
 
 save.image(file='/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/celltype_annotation/plots_Ilaria_PB_24Apr2023.RData')
+
