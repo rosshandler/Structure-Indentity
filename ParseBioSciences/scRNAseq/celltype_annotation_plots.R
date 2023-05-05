@@ -25,27 +25,27 @@ population_colours <- c(
 "Mature excitatory neurons"="#d3b000")
 
 leiden_colours <- c(
-"Differentiating RG 1"="#d54d92",
-"Neuronal 1"="#5cc556",
-"Differentiating RG 2"="#b254bf",
-"Chp"="#9cb735",
+"Differentiating RG"="#d54d92",
+"Mixed Identity RG/Neu 1"="#5cc556",
+"Mixed Identity RG/Neu 2"="#b254bf",
+"Chp 1"="#9cb735",
 "Glicolytic Neuronal"="#6c69ca",
-"Differentiating RG 3"="#cda937",
-"Differentiating RG 4"="#5d8fcb",
-"Migrating Neurons/DL Neurons"="#dc5b31",
-"Mitotic RG"="#42bdc0",
-"Differentiating RG 5"="#dd4663",
-"Migrating DL neurons 1"="#56993f",
-"Migrating DL neurons 2"="#c78acc",
-"Differentiating RG 6"="#61bf8c",
-"RG"="#b63f37",
-"Chp"="#407a48",
-"Chp/Neuronal 1"="#9e4a6b",
-"Neuronal 2"="#b5ae68",
-"Mature Excitatory Neurons"="#e18880",
-"Mitotic RG"="#757327",
-"Chp/Neuronal 2"="#d48a3c",
-"Axon Guiding/Maturing Neurons"="#9c5e32")
+"RG 1"="#cda937",
+"IPCs"="#5d8fcb",
+"Migrating Excitatory Neurons"="#dc5b31",
+"Mitotic RG 1"="#42bdc0",
+"Mixed Identity RG/Neu 3"="#dd4663",
+"UL Neurons"="#56993f",
+"DL Neurons 1"="#c78acc",
+"Mixed Identity RG/Neu 4"="#61bf8c",
+"RG 2"="#b63f37",
+"Chp 2"="#407a48",
+"Inhibitory Neurons"="#9e4a6b",
+"DL Neurons 2"="#b5ae68",
+"CR Cells"="#e18880",
+"Mitotic RG 2"="#757327",
+"Mixed Identity Chp/Neu"="#d48a3c",
+"Chemochine Signaling"="#9c5e32")
 leiden_labels <- names(leiden_colours)
 names(leiden_colours)<-0:20
 
@@ -60,6 +60,17 @@ gexp <- as.matrix(logcounts(sce,assay.type = "decontXcounts"))
 rownames(gexp) <- rowData(sce)$gene_name
 
 df_plot <- data.frame(colData(sce), reducedDim(sce, "UMAP"))
+
+leiden_factor_order <- c(
+  "RG 1","Differentiating RG","RG 2",
+  "Mitotic RG 1","Mitotic RG 2",
+  "IPCs",
+  "Glicolytic Neuronal","Migrating Excitatory Neurons","DL Neurons 1","DL Neurons 2","UL Neurons","Inhibitory Neurons","CR Cells",
+  "Mixed Identity RG/Neu 1","Mixed Identity RG/Neu 2","Mixed Identity RG/Neu 3","Mixed Identity RG/Neu 4",
+  "Chp 1","Chp 2","Mixed Identity Chp/Neu",
+  "Chemochine Signaling"
+)
+df_plot$leiden <- factor(df_plot$leiden, levels=as.character(match(leiden_factor_order,leiden_labels)-1))
 
 plotLayoutExpression <- function(gene="TTR"){
   require(Matrix)
@@ -97,12 +108,12 @@ plotLayoutLeiden <- function(layout="UMAP"){
   require(ggplot2)
     ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(leiden))) +
       geom_point(size = 1) +
-      scale_color_manual(values=leiden_colours, labels=leiden_labels,name = "Leiden") +
+      scale_color_manual(values=leiden_colours, labels=leiden_factor_order,name = "Leiden") +
       theme_minimal() + 
       labs(col="Leiden") +
       theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
       theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
-      guides(colour = guide_legend(override.aes = list(size=7)))  
+      guides(colour = guide_legend(override.aes = list(size=7),nrow=21))  
 }
 
 
@@ -167,5 +178,5 @@ plotViolinExpressionLeiden <- function(gene="TTR"){
     }
 }
 
-save.image(file='/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/celltype_annotation/plots_Ilaria_PB_24Apr2023.RData')
+save.image(file='/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/celltype_annotation/plots_Ilaria_PB_5March2023.RData')
 
