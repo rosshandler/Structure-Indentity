@@ -24,7 +24,7 @@ population_colours <- c(
 "DL neurons"   = "#9e5d56",
 "Mature excitatory neurons"="#d3b000")
 
-leiden_colours <- c(
+leiden_annot_colours <- c(
 "Differentiating RG"="#d54d92",
 "Mixed Identity RG/Neu 1"="#5cc556",
 "Mixed Identity RG/Neu 2"="#b254bf",
@@ -46,8 +46,9 @@ leiden_colours <- c(
 "Mitotic RG 2"="#757327",
 "Mixed Identity Chp/Neu"="#d48a3c",
 "Chemochine Signaling"="#9c5e32")
-leiden_labels <- names(leiden_colours)
-names(leiden_colours)<-0:20
+
+leiden_colours <- leiden_annot_colours
+names(leiden_colours)<- 0:20
 
 day_colours <- c(
 "#0054b9",
@@ -61,7 +62,30 @@ rownames(gexp) <- rowData(sce)$gene_name
 
 df_plot <- data.frame(colData(sce), reducedDim(sce, "UMAP"))
 
-leiden_factor_order <- c(
+leiden_annot <- as.character(df_plot$leiden)
+leiden_annot <- gsub("^0$","Differentiating RG",leiden_annot)
+leiden_annot <- gsub("^1$","Mixed Identity RG/Neu 1",leiden_annot)
+leiden_annot <- gsub("^2$","Mixed Identity RG/Neu 2",leiden_annot)
+leiden_annot <- gsub("^3$","Chp 1",leiden_annot)
+leiden_annot <- gsub("^4$","Glicolytic Neuronal",leiden_annot)
+leiden_annot <- gsub("^5$","RG 1",leiden_annot)
+leiden_annot <- gsub("^6$","IPCs",leiden_annot)
+leiden_annot <- gsub("^7$","Migrating Excitatory Neurons",leiden_annot)
+leiden_annot <- gsub("^8$","Mitotic RG 1",leiden_annot)
+leiden_annot <- gsub("^9$","Mixed Identity RG/Neu 3",leiden_annot)
+leiden_annot <- gsub("^10$","UL Neurons",leiden_annot)
+leiden_annot <- gsub("^11$","DL Neurons 1",leiden_annot)
+leiden_annot <- gsub("^12$","Mixed Identity RG/Neu 4",leiden_annot)
+leiden_annot <- gsub("^13$","RG 2",leiden_annot)
+leiden_annot <- gsub("^14$","Chp 2",leiden_annot)
+leiden_annot <- gsub("^15$","Inhibitory Neurons",leiden_annot)
+leiden_annot <- gsub("^16$","DL Neurons 2",leiden_annot)
+leiden_annot <- gsub("^17$","CR Cells",leiden_annot)
+leiden_annot <- gsub("^18$","Mitotic RG 2",leiden_annot)
+leiden_annot <- gsub("^19$","Mixed Identity Chp/Neu",leiden_annot)
+leiden_annot <- gsub("^20$","Chemochine Signaling",leiden_annot)
+
+leiden_annot_factor_order <- c(
   "RG 1","Differentiating RG","RG 2",
   "Mitotic RG 1","Mitotic RG 2",
   "IPCs",
@@ -70,7 +94,7 @@ leiden_factor_order <- c(
   "Chp 1","Chp 2","Mixed Identity Chp/Neu",
   "Chemochine Signaling"
 )
-df_plot$leiden <- factor(df_plot$leiden, levels=as.character(match(leiden_factor_order,leiden_labels)-1))
+df_plot$leiden_annot <- factor(leiden_annot, levels=leiden_annot_factor_order)
 
 plotLayoutExpression <- function(gene="TTR"){
   require(Matrix)
@@ -108,7 +132,7 @@ plotLayoutLeiden <- function(layout="UMAP"){
   require(ggplot2)
     ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(leiden))) +
       geom_point(size = 1) +
-      scale_color_manual(values=leiden_colours, labels=leiden_factor_order,name = "Leiden") +
+      scale_color_manual(values=leiden_colours, name = "Leiden") +
       theme_minimal() + 
       labs(col="Leiden") +
       theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
@@ -116,6 +140,17 @@ plotLayoutLeiden <- function(layout="UMAP"){
       guides(colour = guide_legend(override.aes = list(size=7),nrow=21))  
 }
 
+plotLayoutLeidenAnnot <- function(layout="UMAP"){
+  require(ggplot2)
+    ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(leiden_annot))) +
+      geom_point(size = 1) +
+      scale_color_manual(values=leiden_annot_colours[leiden_annot_factor_order], name = "Leiden") +
+      theme_minimal() + 
+      labs(col="Leiden") +
+      theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+      theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+      guides(colour = guide_legend(override.aes = list(size=7),nrow=21))  
+}
 
 plotLayoutCondition <- function(layout="UMAP"){
   require(ggplot2)
