@@ -130,7 +130,7 @@ get_earliest_principal_node <- function(cds, time_bin="45"){
   root_pr_nodes
 }
 
-cds <- order_cells(cds, root_pr_nodes=get_earliest_principal_node(cds), method="dpt")
+cds <- order_cells(cds, root_pr_nodes=get_earliest_principal_node(cds))
 
 colData(cds) <- colData(cds)[,-17]#for some reason sample_name columns creates a conflict
 plot_cells(cds, label_groups_by_cluster=FALSE,  color_cells_by = "seurat_prediction")
@@ -180,4 +180,8 @@ ggplot(df_plot_ctrl[plot.index,], aes(x = UMAP1, y = UMAP2, colour = monocle3_ps
   theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
   theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
   xlab("UMAP 1") + ylab("UMAP 2")
-
+  
+colData(sce)$leiden_annot <- df_plot$leiden_annot
+colData(sce)$pt_monocle3  <- df_plot$monocle3_pseudotime
+colData(sce) <- colData(sce)[,-32] 
+saveRDS(sce,"/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/sce_resubmission_v1.rds")
