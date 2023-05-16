@@ -3,7 +3,10 @@ library(irlba)
 library(scater)
 library(Matrix)
 library(ggplot2)
+library(monocle3)
 
+library(tidyverse)
+theme_set(theme_bw(base_size=16))
 
 population_colours <- c(
 "Mitotic RG" = "#005dd8",
@@ -95,3 +98,86 @@ leiden_annot_factor_order <- c(
   "Chemochine Signaling"
 )
 df_plot$leiden_annot <- factor(leiden_annot, levels=leiden_annot_factor_order)
+
+sce_filt <- sce[calculateAverage(sce, assay.type = "decontXcounts")>0.01,]
+
+gene_annotation <- data.frame(gene_short_name=rowData(sce_filt)$gene_id)
+rownames(gene_annotation) <- rowData(sce_filt)$gene_id
+
+rownames(sce_filt) <- rowData(sce_filt)$gene_id
+cds <- new_cell_data_set(counts(sce_filt, assay.type = "decontXcounts"),
+                         cell_metadata = data.frame(colData(sce_filt),leiden_annot=df_plot$leiden_annot),
+                         gene_metadata = gene_annotation)
+cds <- preprocess_cds(cds, num_dim = 30)
+
+cds <- reduce_dimension(cds)
+
+reducedDims(cds)[["UMAP"]] <- reducedDim(sce, "UMAP")
+
+cds <- cluster_cells(cds, reduction_method = "UMAP")
+cds <- learn_graph(cds)
+
+get_earliest_principal_node <- function(cds, time_bin="45"){
+  cell_ids <- which(colData(cds)[, "day"] == time_bin)
+  
+  closest_vertex <-
+  cds@principal_graph_aux[["UMAP"]]$pr_graph_cell_proj_closest_vertex
+  closest_vertex <- as.matrix(closest_vertex[colnames(cds), ])
+  root_pr_nodes <-
+  igraph::V(principal_graph(cds)[["UMAP"]])$name[as.numeric(names
+  (which.max(table(closest_vertex[cell_ids,]))))]
+  
+  root_pr_nodes
+}
+
+cds <- order_cells(cds, root_pr_nodes=get_earliest_principal_node(cds), method="dpt")
+
+colData(cds) <- colData(cds)[,-17]#for some reason sample_name columns creates a conflict
+plot_cells(cds, label_groups_by_cluster=FALSE,  color_cells_by = "seurat_prediction")
+
+pseudotime_values <- pseudotime(cds)
+
+df_plot$monocle3_pseudotime <- pseudotime_values
+
+plot.index  <- order(df_plot$monocle3_pseudotime)
+ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, colour = monocle3_pseudotime)) + 
+  geom_point(size = 1) +
+  scale_color_gradient(low="gold", high="darkgreen") +
+  theme_minimal() + 
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+  xlab("UMAP 1") + ylab("UMAP 2")
+  
+df_plot_diss <- df_plot[grep("DISS",df_plot$condition),] 
+
+plot.index  <- order(df_plot_diss$monocle3_pseudotime)
+ggplot(df_plot_diss[plot.index,], aes(x = UMAP1, y = UMAP2, colour = monocle3_pseudotime)) + 
+  geom_point(size = 1) +
+  scale_color_gradient(low="gold", high="darkgreen") +
+  theme_minimal() + ggtitle("DISS") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+  xlab("UMAP 1") + ylab("UMAP 2")
+
+df_plot_emb <- df_plot[grep("EMB",df_plot$condition),] 
+
+plot.index  <- order(df_plot_emb$monocle3_pseudotime)
+ggplot(df_plot_emb[plot.index,], aes(x = UMAP1, y = UMAP2, colour = monocle3_pseudotime)) + 
+  geom_point(size = 1) +
+  scale_color_gradient(low="gold", high="darkgreen") +
+  theme_minimal() + ggtitle("EMB") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+  xlab("UMAP 1") + ylab("UMAP 2")
+
+df_plot_ctrl <- df_plot[grep("CTRL",df_plot$condition),] 
+
+plot.index  <- order(df_plot_ctrl$monocle3_pseudotime)
+ggplot(df_plot_ctrl[plot.index,], aes(x = UMAP1, y = UMAP2, colour = monocle3_pseudotime)) + 
+  geom_point(size = 1) +
+  scale_color_gradient(low="gold", high="darkgreen") +
+  theme_minimal() + ggtitle("CTRL") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+  xlab("UMAP 1") + ylab("UMAP 2")
+
