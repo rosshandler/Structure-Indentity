@@ -4,7 +4,6 @@ library(scater)
 library(Matrix)
 library(ggplot2)
 
-
 population_colours <- c(
 "Mitotic RG" = "#005dd8",
 "Cycling RG" = "#4aadd6",
@@ -56,34 +55,11 @@ day_colours <- c(
 "#905700")
 names(day_colours) <-c("48","55","70")
 
-sce  <- readRDS("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/sce_transferred_annot.rds")
+sce  <- readRDS("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/sce_resubmission_v1.rds")
 gexp <- as.matrix(logcounts(sce,assay.type = "decontXcounts"))
 rownames(gexp) <- rowData(sce)$gene_name
 
 df_plot <- data.frame(colData(sce), reducedDim(sce, "UMAP"))
-
-leiden_annot <- as.character(df_plot$leiden)
-leiden_annot <- gsub("^0$","Differentiating RG",leiden_annot)
-leiden_annot <- gsub("^1$","Mixed Identity RG/Neu 1",leiden_annot)
-leiden_annot <- gsub("^2$","Mixed Identity RG/Neu 2",leiden_annot)
-leiden_annot <- gsub("^3$","Chp 1",leiden_annot)
-leiden_annot <- gsub("^4$","Glicolytic Neuronal",leiden_annot)
-leiden_annot <- gsub("^5$","RG 1",leiden_annot)
-leiden_annot <- gsub("^6$","IPCs",leiden_annot)
-leiden_annot <- gsub("^7$","Migrating Excitatory Neurons",leiden_annot)
-leiden_annot <- gsub("^8$","Mitotic RG 1",leiden_annot)
-leiden_annot <- gsub("^9$","Mixed Identity RG/Neu 3",leiden_annot)
-leiden_annot <- gsub("^10$","UL Neurons",leiden_annot)
-leiden_annot <- gsub("^11$","DL Neurons 1",leiden_annot)
-leiden_annot <- gsub("^12$","Mixed Identity RG/Neu 4",leiden_annot)
-leiden_annot <- gsub("^13$","RG 2",leiden_annot)
-leiden_annot <- gsub("^14$","Chp 2",leiden_annot)
-leiden_annot <- gsub("^15$","Inhibitory Neurons",leiden_annot)
-leiden_annot <- gsub("^16$","DL Neurons 2",leiden_annot)
-leiden_annot <- gsub("^17$","CR Cells",leiden_annot)
-leiden_annot <- gsub("^18$","Mitotic RG 2",leiden_annot)
-leiden_annot <- gsub("^19$","Mixed Identity Chp/Neu",leiden_annot)
-leiden_annot <- gsub("^20$","Chemochine Signaling",leiden_annot)
 
 leiden_annot_factor_order <- c(
   "RG 1","Differentiating RG","RG 2",
@@ -94,7 +70,7 @@ leiden_annot_factor_order <- c(
   "Chp 1","Chp 2","Mixed Identity Chp/Neu",
   "Chemochine Signaling"
 )
-df_plot$leiden_annot <- factor(leiden_annot, levels=leiden_annot_factor_order)
+df_plot$leiden_annot <- factor(df_plot$leiden_annot, levels=leiden_annot_factor_order)
 
 plotLayoutExpression <- function(gene="TTR"){
   require(Matrix)
@@ -116,13 +92,24 @@ plotLayoutExpression <- function(gene="TTR"){
     }
 }
 
+plotLayoutPseudotime <- function(layout="UMAP"){
+  require(ggplot2)
+  plot.index  <- order(df_plot$pt_monocle3)
+  ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, colour = pt_monocle3)) + 
+    geom_point(size = 1) +
+    scale_color_gradient(low="gold", high="darkgreen") +
+    theme_minimal() + 
+    theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+    theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+    xlab("UMAP 1") + ylab("UMAP 2")
+}
+
 plotLayoutCelltypeMapped <- function(layout="UMAP"){
   require(ggplot2)
     ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(seurat_prediction))) +
       geom_point(size = 1) +
       scale_color_manual(values=population_colours, name = "Cell population mapped", labels = names(population_colours)) +
       theme_minimal() + 
-      labs(col="Leiden") +
       theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
       theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
       guides(colour = guide_legend(override.aes = list(size=7)))  
@@ -144,7 +131,7 @@ plotLayoutLeidenAnnot <- function(layout="UMAP"){
   require(ggplot2)
     ggplot(df_plot, aes(x = UMAP1, y = UMAP2, col = factor(leiden_annot))) +
       geom_point(size = 1) +
-      scale_color_manual(values=leiden_annot_colours[leiden_annot_factor_order], name = "Leiden") +
+      scale_color_manual(values=leiden_annot_colours[leiden_annot_factor_order], name = "Leiden Annotated") +
       theme_minimal() + 
       labs(col="Leiden") +
       theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
@@ -213,5 +200,5 @@ plotViolinExpressionLeiden <- function(gene="TTR"){
     }
 }
 
-save.image(file='/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/celltype_annotation/plots_Ilaria_PB_5March2023.RData')
+save.image(file='/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/celltype_annotation/plots_Ilaria_PB_16May2023.RData')
 
