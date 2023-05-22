@@ -7,36 +7,12 @@ library(ggplot2)
 
 library(patchwork)
 
-path2data   <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/'
-#sce <- readRDS(paste0(path2data,"sce.rds"))
-#sce <- sce[,colData(sce)$doublet_class == "singlet"]
-
-#setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/sctour")
-
-#umap <- read.csv("umap_layout.csv", header = FALSE)
-#colnames(umap) <- c("UMAP1","UMAP2")
-#rownames(umap) <- colnames(sce)
-#meta <- read.csv("metadata_scanpy.csv", header = TRUE)[,-1]
-
-sce  <- readRDS("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/sce_transferred_annot.rds")
-
-df_plot <- data.frame(colData(sce), reducedDim(sce, "UMAP"))
-
-sce_filt <- sce[calculateAverage(sce)>0.01,]
-sce_filt <- logNormCounts(sce_filt)
-
-decomp  <- modelGeneVar(sce_filt)
-hvgs    <- rownames(decomp)[decomp$FDR < 0.1]
-length(hvgs)
-#[1] 783
-
-pca <- prcomp_irlba(t(logcounts(sce_filt[hvgs,])), n = 30)
-rownames(pca$x) <- colnames(sce_filt)
-reducedDim(sce_filt, "PCA") <- as.matrix(pca$x)
-
 setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/miloR")
 
-#milo.obj <- Milo(sce_filt)
+path2data   <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/'
+
+sce  <- readRDS(path2data,"sce_resubmission_v1.rds")
+
 milo.obj <- Milo(sce)
 
 milo.obj <- buildGraph(milo.obj, k=20, d=30)
@@ -46,16 +22,15 @@ plotNhoodSizeHist(milo.obj)
 milo.obj <- calcNhoodDistance(milo.obj, d=30)
 milo.obj <- countCells(milo.obj, samples="sample_name", meta.data=colData(sce))
 
-#reducedDim(milo.obj, "UMAP") <- as.matrix(umap) 
 saveRDS(milo.obj,"MiloRscRNASeqObject.rds")
 
 milo.design <- as.data.frame(xtabs(~ condition + sample_name, data=data.frame(colData(sce))))
 milo.design <- milo.design[milo.design$Freq > 0, ]
 rownames(milo.design) <- milo.design$sample_name
 
-table(meta$condition)
+table(colData(sce)$condition)
 #CTRL_45 CTRL_55 CTRL_70 DISS_48 DISS_55 DISS_70   
-#   7274    7291    2042    1460    8824    7312    4875
+#   1789    2815     900     709    2426    2109    1475
 
 milo.res0 <- testNhoods(milo.obj, design=~condition+0, design.df=milo.design,
   model.contrasts="conditionCTRL_55 - conditionCTRL_45")
@@ -130,3 +105,16 @@ p10 <- plotNhoodGraphDA(milo.obj, milo.res10, alpha=0.5) +
 pdf("miloR.pdf",width=28,height=16)
 egg::ggarrange(p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10, nrow = 3, ncol = 4)
 dev.off()
+
+pdf("DISSday48vsCTRLday55.pdf",width=10,height=8)
+p1
+dev.off()
+
+pdf("DISSday55vsCTRLday55.pdf",width=10,height=8)
+p4
+dev.off()
+
+pdf("DISSday70vsCTRLday70.pdf",width=10,height=8)
+p10
+dev.off()
+
