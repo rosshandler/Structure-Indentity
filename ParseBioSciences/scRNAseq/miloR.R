@@ -1,8 +1,5 @@
 library(miloR)
 library(scran)
-library(irlba)
-library(scater)
-library(Matrix)
 library(ggplot2)
 
 library(patchwork)
