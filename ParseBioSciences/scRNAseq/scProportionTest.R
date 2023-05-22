@@ -1,5 +1,6 @@
 library(miloR)
 library(scran)
+library(Seurat)
 library(ggplot2)
 
 library(scProportionTest)
@@ -35,3 +36,20 @@ setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/miloR"
 path2data   <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/'
 
 sce  <- readRDS(paste0(path2data,"sce_resubmission_v1.rds"))
+rownames(sce) <- rowData(sce)$gene_id
+
+seurat.obj <- as.Seurat(sce, counts = "decontXcounts")
+
+setwd("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/scProportionTest")
+
+prop_test <- sc_utils(seurat.obj)
+
+prop_test <- permutation_test(
+	prop_test, cluster_identity = "leiden_annot",
+	sample_1 = "DISS_55", sample_2 = "CTRL_55",
+	sample_identity = "condition", n_permutations = 10000
+)
+
+pdf("DISS_55_vs_CTRL_55.pdf")
+permutation_plot(prop_test)
+dev.off()
