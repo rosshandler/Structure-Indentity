@@ -1,3 +1,138 @@
+import os
+import numpy as np
+import pandas as pd
+import scanpy as sc
+import scvelo as scv
+
+os.chdir('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/scanpy')
+
+leiden_annot_colours = {
+"Differentiating RG" : "#d54d92",
+"Mixed Identity RG/Neu 1" : "#5cc556",
+"Mixed Identity RG/Neu 2" : "#b254bf",
+"Chp 1" : "#9cb735",
+"Glicolytic Neuronal" : "#6c69ca",
+"RG 1" : "#cda937",
+"IPCs" : "#5d8fcb",
+"Migrating Excitatory Neurons" : "#dc5b31",
+"Mitotic RG 1" : "#42bdc0",
+"Mixed Identity RG/Neu 3" : "#dd4663",
+"UL Neurons" : "#56993f",
+"DL Neurons 1" : "#c78acc",
+"Mixed Identity RG/Neu 4" : "#61bf8c",
+"RG 2" : "#b63f37",
+"Chp 2" : "#407a48",
+"Inhibitory Neurons" : "#9e4a6b",
+"DL Neurons 2" : "#b5ae68",
+"CR Cells" : "#e18880",
+"Mitotic RG 2" : "#757327",
+"Mixed Identity Chp/Neu" : "#d48a3c",
+"Chemochine Signaling" : "#9c5e32",
+}
+
+day_colours = {
+"45" : "#de4481",
+"55" : "#d155be",
+"70" : "#8d4bab",
+}
+
+genes_list = {
+"PAX6",
+"PTN",
+"SOX2",
+"HMGA2",
+"SNTG1",
+"FAM107A",
+"LIFR",
+"MOXD1",
+"HOPX",
+"TNC",
+"EOMES",
+"DLX6-AS1",
+"CUX2",
+"HTR2C",
+"TTR",
+"SLC17A7",
+"SOX5",
+"TBR1",
+"PDZRN3",
+"DLG2",
+"GRIA2",
+"NECAB1",
+"TLE4",
+"CACNA2D3",
+"NR4A2",
+"GAD2",
+"GRIN2A",
+"GRM7",
+"ERBB4",
+"RELN",
+"GAD1",
+"ETV1",
+"NRF1",
+"RORB",
+"PTPRZ1",
+"SATB2",
+"BCL11B",
+"NKX2-1",
+"GRM1",
+"CAMK2A",
+"FOXP2",
+"GRIK1",
+} 
+
+adata_ctrl = sc.read('normalised_counts_ctrl.tab').T
+
+file = open('cells_ctrl.txt', 'r')
+cells  = file.read().splitlines()
+
+file = open('genes_ctrl.txt', 'r')
+genes   = file.read().splitlines()
+
+adata_ctrl.obs = pd.read_csv('cell_metadata_ctrl.tab', sep ='\t', low_memory=False)
+adata_ctrl.obs_names = cells
+adata_ctrl.var_names = genes
+adata_ctrl.var_names_make_unique() 
+
+adata_ctrl.obs['day'] = adata_ctrl.obs['day'].values.astype('str')
+
+adata_ctrl.uns['day'] = [day_colours[i] for i in sorted(np.unique(adata_ctrl.obs['day']))]
+adata_ctrl.uns['leiden_annot'] = [leiden_annot_colours[i] for i in sorted(np.unique(adata_ctrl.obs['leiden_annot']))]
+
+scv.pl.heatmap(adata_ctrl, var_names=genes_list, sortby='pt_monocle3', col_color='leiden_annot', n_convolve=200, yticklabels=True)
+scv.pl.heatmap(adata_ctrl, var_names=genes_list, sortby='pt_monocle3', col_color='day', n_convolve=200, yticklabels=True)
+
+hmap_ctrl = scv.pl.heatmap(adata_ctrl, var_names=genes_list, sortby='pt_monocle3', col_color='day', n_convolve=200, yticklabels=True, show=False)
+genes_ordered = hmap_ctrl.data.index.values
+
+
+adata_diss = sc.read('normalised_counts_diss.tab').T
+
+file = open('cells_diss.txt', 'r')
+cells  = file.read().splitlines()
+
+file = open('genes_diss.txt', 'r')
+genes   = file.read().splitlines()
+
+adata_diss.obs = pd.read_csv('cell_metadata_diss.tab', sep ='\t', low_memory=False)
+adata_diss.obs_names = cells
+adata_diss.var_names = genes
+adata_diss.var_names_make_unique() 
+
+adata_diss.obs['day'] = adata_diss.obs['day'].values.astype('str')
+
+adata_diss.uns['day'] = [day_colours[i] for i in sorted(np.unique(adata_diss['day']))]
+
+scv.pl.heatmap(adata_diss, var_names=genes_ordered, sortby='pt_monocle3', col_color='day', n_convolve=200, yticklabels=True, sort=False)
+
+
+
+
+
+
+
+
+
 import pandas as pd
 import scanpy as sc
 import numpy as np
