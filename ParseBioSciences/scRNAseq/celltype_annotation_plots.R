@@ -202,3 +202,19 @@ plotViolinExpressionLeiden <- function(gene="TTR"){
 
 save.image(file='/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/celltype_annotation/plots_Ilaria_PB_16May2023.RData')
 
+setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/scanpy/')
+sce_ctrl  <- sce[,grep("CTRL", colData(sce)$condition)]
+
+write.table(as.matrix(logcounts(sce_ctrl)),"normalised_counts_ctrl.tab", sep="\t", row.names=FALSE, quote=FALSE)
+writeLines(colnames(sce_ctrl),"cells_ctrl.txt")
+writeLines(rownames(sce_ctrl),"genes_ctrl.txt")
+write.table(data.frame(colData(sce_ctrl)),"cell_metadata_ctrl.tab", sep="\t", row.names=FALSE, quote=FALSE)
+
+sce_diss  <- sce[,grep("DISS", colData(sce)$condition)]
+
+write.table(as.matrix(logcounts(sce_diss)),"normalised_counts_diss.tab", sep="\t", row.names=FALSE, quote=FALSE)
+writeLines(colnames(sce_diss),"cells_diss.txt")
+writeLines(rownames(sce_diss),"genes_diss.txt")
+write.table(data.frame(colData(sce_diss)),"cell_metadata_diss.tab", sep="\t", row.names=FALSE, quote=FALSE)
+
+
