@@ -204,6 +204,7 @@ save.image(file='/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combi
 
 setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/scanpy/')
 sce_ctrl  <- sce[,grep("CTRL", colData(sce)$condition)]
+colData(sce_ctrl)$day <- paste0(colData(sce_ctrl)$day," day")
 
 write.table(as.matrix(logcounts(sce_ctrl)),"normalised_counts_ctrl.tab", sep="\t", row.names=FALSE, quote=FALSE)
 writeLines(colnames(sce_ctrl),"cells_ctrl.txt")
@@ -211,6 +212,8 @@ writeLines(rownames(sce_ctrl),"genes_ctrl.txt")
 write.table(data.frame(colData(sce_ctrl)),"cell_metadata_ctrl.tab", sep="\t", row.names=FALSE, quote=FALSE)
 
 sce_diss  <- sce[,grep("DISS", colData(sce)$condition)]
+
+colData(sce_diss)$day <- paste0(colData(sce_diss)$day," day")
 
 write.table(as.matrix(logcounts(sce_diss)),"normalised_counts_diss.tab", sep="\t", row.names=FALSE, quote=FALSE)
 writeLines(colnames(sce_diss),"cells_diss.txt")
