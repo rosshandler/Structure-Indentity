@@ -31,9 +31,9 @@ leiden_annot_colours = {
 }
 
 day_colours = {
-"45" : "#de4481",
-"55" : "#d155be",
-"70" : "#8d4bab",
+"45 day" : "#0054b9",
+"55 day" : "#E3CF57",
+"70 day" : "#ff506d",
 }
 
 genes_list = {
@@ -94,17 +94,34 @@ adata_ctrl.obs_names = cells
 adata_ctrl.var_names = genes
 adata_ctrl.var_names_make_unique() 
 
-adata_ctrl.obs['day'] = adata_ctrl.obs['day'].values.astype('str')
+adata_ctrl.obs['day'].value_counts()
+#55 day    2815
+#45 day    1789
+#70 day     900
+#Name: day, dtype: int64
 
 adata_ctrl.uns['day'] = [day_colours[i] for i in sorted(np.unique(adata_ctrl.obs['day']))]
 adata_ctrl.uns['leiden_annot'] = [leiden_annot_colours[i] for i in sorted(np.unique(adata_ctrl.obs['leiden_annot']))]
 
-scv.pl.heatmap(adata_ctrl, var_names=genes_list, sortby='pt_monocle3', col_color='leiden_annot', n_convolve=200, yticklabels=True)
-scv.pl.heatmap(adata_ctrl, var_names=genes_list, sortby='pt_monocle3', col_color='day', n_convolve=200, yticklabels=True)
+sc.tl.pca(adata_ctrl, svd_solver='arpack', random_state=1)
+sc.pp.neighbors(adata_ctrl, n_neighbors=30)
+sc.tl.umap(adata_ctrl)
+
+sc.pl.umap(adata_ctrl, color='day', palette=day_colours)
+sc.pl.umap(adata_ctrl, color='leiden_annot',palette=leiden_annot_colours)
+
+scv.pl.heatmap(adata_ctrl, var_names=genes_list, sortby='pt_monocle3', col_color='day', palette=day_colours, n_convolve=200, yticklabels=True)
+scv.pl.heatmap(adata_ctrl, var_names=genes_list, sortby='pt_monocle3', col_color='leiden_annot', palette=leiden_annot_colours, n_convolve=200, yticklabels=True)
 
 hmap_ctrl = scv.pl.heatmap(adata_ctrl, var_names=genes_list, sortby='pt_monocle3', col_color='day', n_convolve=200, yticklabels=True, show=False)
 genes_ordered = hmap_ctrl.data.index.values
 
+###
+day_colours = {
+"48 day" : "#0054b9",
+"55 day" : "#E3CF57",
+"70 day" : "#ff506d",
+}
 
 adata_diss = sc.read('normalised_counts_diss.tab').T
 
@@ -119,11 +136,15 @@ adata_diss.obs_names = cells
 adata_diss.var_names = genes
 adata_diss.var_names_make_unique() 
 
-adata_diss.obs['day'] = adata_diss.obs['day'].values.astype('str')
-
+sc.tl.pca(adata_diss, svd_solver='arpack', random_state=1)
+sc.pp.neighbors(adata_diss, n_neighbors=30)
+sc.tl.umap(adata_diss)
 adata_diss.uns['day'] = [day_colours[i] for i in sorted(np.unique(adata_diss['day']))]
 
-scv.pl.heatmap(adata_diss, var_names=genes_ordered, sortby='pt_monocle3', col_color='day', n_convolve=200, yticklabels=True, sort=False)
+sc.pl.umap(adata_diss, color='day', palette=day_colours)
+
+scv.pl.heatmap(adata_diss, var_names=genes_ordered, sortby='pt_monocle3', col_color='day', n_convolve=200, palette=day_colours,yticklabels=True, sort=False)
+scv.pl.heatmap(adata_diss, var_names=genes_list, sortby='pt_monocle3', col_color='day', palette=day_colours,n_convolve=200, yticklabels=True)
 
 
 
