@@ -220,4 +220,22 @@ writeLines(colnames(sce_diss),"cells_diss.txt")
 writeLines(rownames(sce_diss),"genes_diss.txt")
 write.table(data.frame(colData(sce_diss)),"cell_metadata_diss.tab", sep="\t", row.names=FALSE, quote=FALSE)
 
+##############
+sample_subset <- c("6/07_d45_B", "6/07_d48_B", "6/07_d55_DISSB","6/07_d70_DISSB")
 
+df_subset <- df_plot[df_plot$sample_name %in% sample_subset,]
+
+plotLayoutSampleSub <- function(layout="UMAP"){
+  require(ggplot2)
+  plot.index  <- sample(nrow(df_subset))
+    ggplot(df_subset[plot.index,], aes(x = UMAP1, y = UMAP2, col = factor(sample_name))) +
+      geom_point(size = 2) +
+      theme_minimal() +
+      labs(col="Sample") +
+      theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+      theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+      guides(colour = guide_legend(override.aes = list(size=7)))
+}
+
+p <- plotLayoutSampleSub()
+p + facet_wrap(~sample_name)
