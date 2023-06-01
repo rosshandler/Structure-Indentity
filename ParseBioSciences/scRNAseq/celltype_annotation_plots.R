@@ -239,3 +239,61 @@ plotLayoutSampleSub <- function(layout="UMAP"){
 
 p <- plotLayoutSampleSub()
 p + facet_wrap(~sample_name)
+
+#####
+ctrl_index <- grep("CTRL",df_plot$condition)
+diss_index <- grep("DISS",df_plot$condition)
+emb_index  <- grep("EMB", df_plot$condition)
+
+condition_full <- rep(NA,nrow(df_plot))
+
+condition_full[ctrl_index] <- "CTRL"
+condition_full[diss_index] <- "DISS"
+condition_full[emb_index]  <- "EMB"
+
+df_plot$condition_full <- condition_full
+
+plotLayoutConditionExtra <- function(layout="UMAP"){
+  require(ggplot2)
+  plot.index  <- sample(nrow(df_plot))
+    ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = factor(condition_full))) +
+      geom_point(size = 1) +        
+      theme_minimal() + 
+      labs(col="Condition") +
+      theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+      theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+      guides(colour = guide_legend(override.aes = list(size=7)))
+}
+
+plotLayoutConditionExtra() + facet_wrap(~condition_full)
+
+###### Heatmap mixed identity
+df_plot$leiden_annot <- gsub("DL Neurons 2","Mixed Identity RG/Neu 5", df_plot$leiden_annot)
+
+RG_markers <- c("DACH1","GLI3","MEIS2","CREB5","SHROOM3","PAX6","NPAS3","ZFHX4","SLC1A3")
+
+N_markers  <- c("CTNNA2","ZFPM2","GRIA2","NRXN1","SLC24A2","DCC","BCL11B","PTPRD","KCNQ3")
+
+markers <- c(RG_markers, N_markers)
+
+dat1 <- apply(gexp[markers, df_plot$leiden_annot == "Mixed Identity RG/Neu 1"],1,mean)
+dat2 <- apply(gexp[markers, df_plot$leiden_annot == "Mixed Identity RG/Neu 2"],1,mean)
+dat3 <- apply(gexp[markers, df_plot$leiden_annot == "Mixed Identity RG/Neu 3"],1,mean)
+dat4 <- apply(gexp[markers, df_plot$leiden_annot == "Mixed Identity RG/Neu 4"],1,mean)
+dat5 <- apply(gexp[markers, df_plot$leiden_annot == "Mixed Identity RG/Neu 5"],1,mean)
+dat6 <- apply(gexp[markers, df_plot$leiden_annot == "RG 1"],1,mean)
+dat7 <- apply(gexp[markers, df_plot$leiden_annot == "Migrating Excitatory Neurons"],1,mean)
+
+dat <- cbind(dat6,dat7,dat1,dat2,dat3,dat4,dat5)
+
+pheatmap::pheatmap(dat,scale="row",cluster_cols=FALSE,cluster_rows=FALSE)
+
+colnames(dat) <- c("RG 1","Migrating Excitatory Neurons","Mixed Identity RG/Neu 1","Mixed Identity RG/Neu 2","Mixed Identity RG/Neu 3","Mixed Identity RG/Neu 4","Mixed Identity RG/Neu 5")
+
+
+
+
+
+
+
+
