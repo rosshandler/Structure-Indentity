@@ -9,7 +9,7 @@ library(umap)
 library(reticulate)
 use_condaenv(condaenv="scanpy-p3.9")
 
-path2data    <- '//data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sNuclei/combined/all-well/DGE_filtered/'
+path2data    <- '/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sNuclei/combined/all-well/DGE_filtered/'
 path2data10x <- '/data1/ivanir/Ilaria2021/UCSC_data/'
 
 sce_pb  <- readRDS(paste0(path2data, 'sce.rds'))
@@ -59,7 +59,7 @@ sce_pb <- sce_pb[calculateAverage(sce_pb)>0.01,]
 decomp  <- modelGeneVar(sce_pb)
 hvgs    <- rownames(decomp)[decomp$FDR < 0.1]
 length(hvgs)
-#[1] 
+#[1] 406
 pca     <- prcomp_irlba(t(logcounts(sce_pb[hvgs,])), n = 30)
 rownames(pca$x) <- colnames(sce_pb)
 tsne    <- Rtsne(pca$x, pca = FALSE, check_duplicates = FALSE, num_threads=30)
@@ -132,7 +132,233 @@ guides(colour = guide_legend(override.aes = list(size=7)))
 dev.off()
 
 ######################
+###################### Project DISS 48 to Nuclei 48
 ######################
-######################
-sce <- readRDS(paste0(path2data,'transferred_annot_meta.rds'))
+library(batchelor)
+library(BiocNeighbors)
+
+population_colours <- c(
+"Mitotic RG" = "#005dd8",
+"Cycling RG" = "#4aadd6",
+"Differentiating RG" = "#6083d1",
+"RG" = "#02d7ec",
+"Glycolytic RG" = "#0086cb",
+"High trancription RG" = "#4aac8d",
+"Chp" = "#935de6",
+"Cortical hem" = "#9e4d70",
+"Cycling IPCs" = "#d74897",
+"IPCs"   = "#ff8ba6",
+"IN"="#228B22",
+"Mature IN" = "#90b600",
+"CR cells" = "#00ff00",
+"Migrating excitatory neurons" = "#a6023e",
+"UL neurons"   = "#fa2274",
+"DL neurons"   = "#9e5d56",
+"Mature excitatory neurons"="#d3b000",
+"Landscape" = "grey")
+
+meta_annot <- readRDS(paste0(path2data,'transferred_annot_meta.rds'))
+
+colData(sce_pb) <- DataFrame(meta_annot)
+
+reducedDims(sce_pb)[["UMAP"]] <- df_plot[,c("UMAP1","UMAP2")]
+
+sce  <- readRDS("/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/all-well/DGE_unfiltered/sce_resubmission_v1.rds")
+
+shared_genes <- intersect(rownames(sce),rownames(sce_pb))
+
+sceDISS48  <- sce[shared_genes,grep("DISS_48", colData(sce)$condition)]
+
+cB1 <- cosineNorm(logcounts(sceDISS48))
+cB2 <- cosineNorm(logcounts(sce_pb[shared_genes,]))
+pcs <- multiBatchPCA(cB1, cB2)
+mnn.out <- reducedMNN(pcs[[1]], pcs[[2]])
+
+knns <- queryKNN(mnn.out$corrected[-grep("pb",rownames(mnn.out$corrected)),], mnn.out$corrected[grep("pb",rownames(mnn.out$corrected)),], k = 50, get.index = TRUE, get.distance = FALSE)
+
+indexes <- unique(as.vector((knns$index)))
+
+KNN <- rep("Landscape",nrow(df_plot))
+KNN[indexes] <- "DISS_48"
+
+df_plot$KNN <- KNN
+
+plot.index <- rev(order(df_plot$KNN))
+ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = factor(KNN))) +
+  geom_point(size = 2) +
+  scale_color_manual(values=c("red","grey")) +
+  theme_minimal() + 
+  theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+  guides(colour = guide_legend(override.aes = list(size=7)))
+
+KNN <- rep("Landscape",nrow(df_plot))
+KNN[indexes] <- df_plot$seurat_prediction[indexes]
+
+df_plot$KNN <- KNN
+
+ggplot(df_plot[plot.index,], aes(x = UMAP1, y = UMAP2, col = factor(KNN))) +
+  geom_point(size = 3) +
+  scale_color_manual(values=population_colours, name = "Cell population mapped", labels = names(population_colours)) +
+  theme_minimal() + 
+  theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+  guides(colour = guide_legend(override.aes = list(size=7)))
+
+###########################
+###########################
+library(irlba)
+library(miloR)
+library(Seurat)
+library(scProportionTest)
+
+library(miloR)
+library(scran)
+library(ggplot2)
+
+library(patchwork)
+
+
+decomp  <- modelGeneVar(sce_pb)
+hvgs    <- rownames(decomp)[decomp$FDR < 0.1]
+
+seurat.obj <- as.Seurat(sce_pb[hvgs,], counts = "counts")
+
+prop_test <- sc_utils(seurat.obj)
+
+prop_test1 <- permutation_test(
+	prop_test, cluster_identity = "seurat_prediction",
+	sample_1 = "23/08-21/08_d45_n", sample_2 = "23/08_d45_E",
+	sample_identity = "sample_name", n_permutations = 10000
+)
+
+pdf("23-08-21-08_d45_n_vs_23-08_d45_E.pdf")
+permutation_plot(prop_test1)
+dev.off()
+
+prop_test2 <- permutation_test(
+	prop_test, cluster_identity = "seurat_prediction",
+	sample_1 = "23/08-21/08_d45_n", sample_2 = "23/08_d45_F",
+	sample_identity = "sample_name", n_permutations = 10000
+)
+
+pdf("23-08-21-08_d45_n_vs_23-08_d45_F.pdf")
+permutation_plot(prop_test2)
+dev.off()
+
+prop_test3 <- permutation_test(
+	prop_test, cluster_identity = "seurat_prediction",
+	sample_1 = "23/08-21/08_d45_n", sample_2 = "23/08_d45_E",
+	sample_identity = "sample_name", n_permutations = 10000
+)
+
+pdf("23-08-21-08_d45_n_vs_23-08_d45_E.pdf")
+permutation_plot(prop_test3)
+dev.off()
+
+prop_test4 <- permutation_test(
+	prop_test, cluster_identity = "seurat_prediction",
+	sample_1 = "23/08-21/08_d45_n", sample_2 = "23/08_d45_F",
+	sample_identity = "sample_name", n_permutations = 10000
+)
+
+pdf("23-08-21-08_d45_n_vs_23-08_d45_F.pdf")
+permutation_plot(prop_test4)
+dev.off()
+
+prop_test5 <- permutation_test(
+	prop_test, cluster_identity = "seurat_prediction",
+	sample_1 = "23/08-21/08_d45_n", sample_2 = "6/07_d45_C",
+	sample_identity = "sample_name", n_permutations = 10000
+)
+
+pdf("23-08-21-08_d45_n_vs_6-07_d45_C.pdf")
+permutation_plot(prop_test5)
+dev.off()
+
+prop_test6 <- permutation_test(
+	prop_test, cluster_identity = "seurat_prediction",
+	sample_1 = "23/08-21/08_d45_n", sample_2 = "6/07_d45_D",
+	sample_identity = "sample_name", n_permutations = 10000
+)
+
+pdf("23-08-21-08_d45_n_vs_6-07_d45_D.pdf")
+permutation_plot(prop_test6)
+dev.off()
+
+###
+sce_pb  <- readRDS(paste0(path2data, 'sce.rds'))
+colnames(sce_pb) <- paste0(colnames(sce_pb),'_pb')
+rownames(sce_pb) <- rowData(sce_pb)$gene_name
+sce_pb  <- sce_pb[calculateAverage(sce_pb)>0.01,]
+sce_pb  <- logNormCounts(sce_pb)
+decomp  <- modelGeneVar(sce_pb)
+hvgs    <- rownames(decomp)[decomp$FDR < 0.5]
+
+meta_annot <- readRDS(paste0(path2data,'transferred_annot_meta.rds'))
+
+colData(sce_pb) <- DataFrame(meta_annot)
+
+pca     <- prcomp_irlba(t(logcounts(sce_pb[hvgs,])), n = 30)
+rownames(pca$x) <- colnames(sce_pb)
+
+df_plot <- data.frame(
+ meta_annot,
+ tSNE1    = tsne$Y[, 1],
+ tSNE2    = tsne$Y[, 2], 
+ UMAP1 = layout$layout[,1],
+ UMAP2 = layout$layout[,2] 
+)
+
+reducedDims(sce_pb)[["UMAP"]] <- df_plot[,c("UMAP1","UMAP2")]
+reducedDims(sce_pb)[["PCA"]] <- pca$x
+
+milo.obj <- Milo(sce_pb)
+milo.obj <- buildGraph(milo.obj, k=20, d=30)
+milo.obj <- makeNhoods(milo.obj, k=20, d=30, refined=TRUE, prop=0.2)
+plotNhoodSizeHist(milo.obj)
+
+condition <- rep("Ctrl",nrow(colData(sce_pb)))
+condition[grep("23/08-21/08_d45_n",colData(sce_pb)$sample_name)] <- "Test"
+colData(sce_pb)$condition <- condition
+
+milo.obj <- calcNhoodDistance(milo.obj, d=30)
+milo.obj <- countCells(milo.obj, samples="sample_name", meta.data=colData(sce_pb))
+
+saveRDS(milo.obj,"MiloRscRNASeqObjectNuclei.rds")
+
+milo.design <- as.data.frame(xtabs(~ condition + sample_name, data=data.frame(colData(sce_pb))))
+milo.design <- milo.design[milo.design$Freq > 0, ]
+rownames(milo.design) <- milo.design$sample_name
+
+milo.res0 <- testNhoods(milo.obj, design=~condition+0, design.df=milo.design,
+  model.contrasts="conditionTest - conditionCtrl")
+head(milo.res0[order(milo.res0$PValue, decreasing=FALSE),])
+
+milo.obj <- buildNhoodGraph(milo.obj)
+
+p0 <- plotNhoodGraphDA(milo.obj, milo.res0, alpha=0.5) +
+  plot_layout(guides="collect") + ggtitle("Test - Ctrl")
+
+pdf("Test_vs_Ctrl_miloR.pdf",width=10,height=8)
+p0
+dev.off()
+
+
+seurat.obj <- as.Seurat(sce_pb[hvgs,], counts = "counts")
+
+prop_test <- sc_utils(seurat.obj)
+
+prop_test0 <- permutation_test(
+	prop_test, cluster_identity = "seurat_prediction",
+	sample_1 = "Test", sample_2 = "Ctrl",
+	sample_identity = "condition", n_permutations = 10000
+)
+
+pdf("Test_vs_Ctrl_proptest.pdf")
+permutation_plot(prop_test0)
+dev.off()
+
+
+
 
