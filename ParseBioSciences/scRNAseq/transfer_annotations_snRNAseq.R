@@ -131,3 +131,8 @@ theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=el
 guides(colour = guide_legend(override.aes = list(size=7)))
 dev.off()
 
+######################
+######################
+######################
+sce <- readRDS(paste0(path2data,'transferred_annot_meta.rds'))
+
