@@ -156,7 +156,48 @@ sc.pl.umap(adata_diss, color='day', palette=day_colours)
 scv.pl.heatmap(adata_diss, var_names=genes_ordered, sortby='pt_monocle3', col_color='day', n_convolve=200, palette=day_colours,yticklabels=True, sort=False)
 scv.pl.heatmap(adata_diss, var_names=genes_list, sortby='pt_monocle3', col_color='day', palette=day_colours,n_convolve=200, yticklabels=True)
 
-
+#####
+SOX2
+NRF1
+PTN
+PAX6
+HMGA2
+FOXP2
+RORB
+PTPRZ1
+LIFR
+SNTG1
+ETV1
+TNC
+MOXD1
+HOPX
+FAM107A
+EOMES
+DLX6-AS1
+CUX2
+HTR2C
+TTR
+NKX2-1
+SLC17A7
+BCL11B
+GRM1
+SOX5
+TBR1
+PDZRN3
+SATB2
+DLG2
+GRIA2
+NECAB1
+TLE4
+CACNA2D3
+CAMK2A
+NR4A2
+GRIN2A
+GRIK1
+ERBB4
+GAD2
+GRM7
+GAD1
 
 
 
