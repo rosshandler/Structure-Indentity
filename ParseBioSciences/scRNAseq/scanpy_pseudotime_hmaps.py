@@ -6,6 +6,14 @@ import scvelo as scv
 
 os.chdir('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/scanpy')
 
+from colour import Color
+blue = Color("blue")
+colors = list(blue.range_to(Color("green"),10))
+
+# colors is now a list of length 10
+# Containing: 
+#[<Color blue>, <Color #0036f1>, <Color #0065e3>, <Color #008ed5>, <Color #00b0c7>, <Color #00b8a4>, <Color #00aa72>, <Color #009c45>, <Color #008e20>, <Color green>]
+
 leiden_annot_colours = {
 "Differentiating RG" : "#d54d92",
 "Mixed Identity RG/Neu 1" : "#5cc556",
@@ -31,9 +39,9 @@ leiden_annot_colours = {
 }
 
 day_colours = {
-"45 day" : "#0054b9",
-"55 day" : "#E3CF57",
-"70 day" : "#ff506d",
+"45 day" : "#0036f1",
+"55 day" : "#00b8a4",
+"70 day" : "#008e20",
 }
 
 genes_list = {
@@ -45,10 +53,10 @@ genes_list = {
 "FAM107A",
 "LIFR",
 "MOXD1",
-"HOPX",
+#"HOPX",
 "TNC",
 "EOMES",
-"DLX6-AS1",
+#"DLX6-AS1",
 "CUX2",
 "HTR2C",
 "TTR",
@@ -71,10 +79,10 @@ genes_list = {
 "ETV1",
 "NRF1",
 "RORB",
-"PTPRZ1",
+#"PTPRZ1",
 "SATB2",
 "BCL11B",
-"NKX2-1",
+#"NKX2-1",
 "GRM1",
 "CAMK2A",
 "FOXP2",
@@ -118,9 +126,9 @@ genes_ordered = hmap_ctrl.data.index.values
 
 ###
 day_colours = {
-"48 day" : "#0054b9",
-"55 day" : "#E3CF57",
-"70 day" : "#ff506d",
+"48 day" : "#0036f1",
+"55 day" : "#00b8a4",
+"70 day" : "#008e20",
 }
 
 adata_diss = sc.read('normalised_counts_diss.tab').T
@@ -135,6 +143,8 @@ adata_diss.obs = pd.read_csv('cell_metadata_diss.tab', sep ='\t', low_memory=Fal
 adata_diss.obs_names = cells
 adata_diss.var_names = genes
 adata_diss.var_names_make_unique() 
+
+adata_diss.obs['day'].value_counts()
 
 sc.tl.pca(adata_diss, svd_solver='arpack', random_state=1)
 sc.pp.neighbors(adata_diss, n_neighbors=30)
