@@ -159,6 +159,9 @@ population_colours <- c(
 
 meta_annot <- readRDS(paste0(path2data,'transferred_annot_meta.rds'))
 
+reducedDims(sce_pb)[["UMAP"]] <- df_plot[,c("UMAP1","UMAP2")]
+reducedDims(sce_pb)[["PCA"]] <- pca$x
+
 colData(sce_pb) <- DataFrame(meta_annot)
 
 reducedDims(sce_pb)[["UMAP"]] <- df_plot[,c("UMAP1","UMAP2")]
