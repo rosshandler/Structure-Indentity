@@ -302,6 +302,7 @@ RG_markers <- c("DACH1","GLI3","MEIS2","CREB5","SHROOM3","PAX6","NPAS3","ZFHX4",
 #N_markers  <- c("CTNNA2","ZFPM2","GRIA2","NRXN1","SLC24A2","DCC","BCL11B","PTPRD","KCNQ3")
 N_markers  <- c("KCND2","KCNQ3","GRIA2","GRIA1","NRXN1","SLC24A2","GRM1","GRIN1")
 N_markers  <- c("KCND2","KCNQ3","GRIA2","GRIA1","NRXN1","SLC24A2")
+N_markers  <- c("KCND2","KCNQ3","GRIA2","GRIA1","NRXN1","SLC24A2","SYP","SNAP25")
 
 markers <- c(RG_markers, N_markers)
 
@@ -340,8 +341,9 @@ dat_annotation_colors <- list(c(
 names(dat_annotation_colors) <- "Clusters"
 
 setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/plots')
-pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, color=viridis_pal()(20), file="hmap1.pdf")
-pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, annotation_colors=dat_annotation_colors, file="hmap2.pdf")
+#pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, color=viridis_pal()(20), file="hmap1.pdf")
+pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, annotation_colors=dat_annotation_colors)
+pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, annotation_colors=dat_annotation_colors, file="hmap_mixed_identity_v1.pdf",width=12,height=3, color=inferno(10))
 
 
 
