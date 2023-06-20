@@ -291,6 +291,60 @@ pheatmap::pheatmap(dat,scale="row",cluster_cols=FALSE,cluster_rows=FALSE)
 colnames(dat) <- c("RG 1","Migrating Excitatory Neurons","Mixed Identity RG/Neu 1","Mixed Identity RG/Neu 2","Mixed Identity RG/Neu 3","Mixed Identity RG/Neu 4","Mixed Identity RG/Neu 5")
 
 
+############
+###### Heatmap mixed identity
+library(viridis)
+
+df_plot$leiden_annot <- gsub("DL Neurons 2","Mixed Identity RG/Neu 5", df_plot$leiden_annot)
+
+RG_markers <- c("DACH1","GLI3","MEIS2","CREB5","SHROOM3","PAX6","NPAS3","ZFHX4","SLC1A3")
+
+#N_markers  <- c("CTNNA2","ZFPM2","GRIA2","NRXN1","SLC24A2","DCC","BCL11B","PTPRD","KCNQ3")
+N_markers  <- c("KCND2","KCNQ3","GRIA2","GRIA1","NRXN1","SLC24A2","GRM1","GRIN1")
+N_markers  <- c("KCND2","KCNQ3","GRIA2","GRIA1","NRXN1","SLC24A2")
+
+markers <- c(RG_markers, N_markers)
+
+dat1 <- gexp[markers, df_plot$leiden_annot == "Mixed Identity RG/Neu 1"]
+dat2 <- gexp[markers, df_plot$leiden_annot == "Mixed Identity RG/Neu 2"]
+dat3 <- gexp[markers, df_plot$leiden_annot == "Mixed Identity RG/Neu 3"]
+dat4 <- gexp[markers, df_plot$leiden_annot == "Mixed Identity RG/Neu 4"]
+dat5 <- gexp[markers, df_plot$leiden_annot == "Mixed Identity RG/Neu 5"]
+dat6 <- gexp[markers, df_plot$leiden_annot == "RG 1"]
+dat7 <- gexp[markers, df_plot$leiden_annot == "Migrating Excitatory Neurons"]
+
+dat <- cbind(dat6,dat7,dat1,dat2,dat3,dat4,dat5)
+
+dat_annot <- data.frame(c(
+  rep("RG",ncol(dat6)),
+  rep("Migrating Excitatory Neurons",ncol(dat7)),
+  rep("Mixed Identity RG/Neu 1",ncol(dat1)),
+  rep("Mixed Identity RG/Neu 2",ncol(dat2)),
+  rep("Mixed Identity RG/Neu 3",ncol(dat3)),
+  rep("Mixed Identity RG/Neu 4",ncol(dat4)),
+  rep("Mixed Identity RG/Neu 5",ncol(dat5))
+))
+rownames(dat_annot) <- colnames(dat)
+colnames(dat_annot) <- "Clusters"
+dat_annot$Clusters <- factor(dat_annot$Clusters, levels=c("RG","Migrating Excitatory Neurons","Mixed Identity RG/Neu 1","Mixed Identity RG/Neu 2","Mixed Identity RG/Neu 3","Mixed Identity RG/Neu 4","Mixed Identity RG/Neu 5"))
+
+dat_annotation_colors <- list(c(
+"RG"="#cda937",
+"Migrating Excitatory Neurons"="#dc5b31",
+"Mixed Identity RG/Neu 1"="#5cc556",
+"Mixed Identity RG/Neu 2"="#b254bf",
+"Mixed Identity RG/Neu 3"="#dd4663",
+"Mixed Identity RG/Neu 4"="#61bf8c",
+"Mixed Identity RG/Neu 5"="#b5ae68"
+))
+names(dat_annotation_colors) <- "Clusters"
+
+setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/plots')
+pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, color=viridis_pal()(20), file="hmap1.pdf")
+pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, annotation_colors=dat_annotation_colors, file="hmap2.pdf")
+
+
+
 
 
 
