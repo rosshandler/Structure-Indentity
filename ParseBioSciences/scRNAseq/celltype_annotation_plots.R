@@ -341,12 +341,17 @@ dat_annotation_colors <- list(c(
 names(dat_annotation_colors) <- "Clusters"
 
 setwd('/data1/ivanir/Ilaria2023/ParseBS/newvolume/analysis/sCell/combined/plots')
-#pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, color=viridis_pal()(20), file="hmap1.pdf")
+pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, color=viridis_pal()(100))
 pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, annotation_colors=dat_annotation_colors)
-pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, annotation_colors=dat_annotation_colors, file="hmap_mixed_identity_v1.pdf",width=12,height=3, color=inferno(10))
+pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, annotation_colors=dat_annotation_colors, file="hmap_mixed_identity_v1.pdf",width=12,height=3,color=inferno(10))
 
+colour_scale <- colorpanel(1000, "blue", "pink", "red")
+pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, annotation_colors=dat_annotation_colors, color=colour_scale)
 
-
+library(RColorBrewer)
+colour_scale <- colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(100)
+colour_scale <- c(rep(colour_scale[1],50),colour_scale,rep(colour_scale[100],50))
+pheatmap::pheatmap(dat, scale="row", cluster_cols=FALSE, cluster_rows=FALSE, annotation_col=dat_annot, show_colnames = FALSE, annotation_colors=dat_annotation_colors, color=colour_scale,file="hmap_mixed_identity_v1.pdf",width=12,height=3,)
 
 
 
