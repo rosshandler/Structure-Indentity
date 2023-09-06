@@ -1,2 +1,10 @@
-# Structure-Indentity
-This project used snRNA-seq and Molecular Cartography to investigate the relation between morphology and molecular identity in human brain organoids.
+# Tissue morphology influences the temporal program of human cerebral organoids
+This project used scRNA-seq, snRNA-seq and Molecular Cartography to investigate the relation between morphology and molecular identity in human brain organoids.
+
+## Abstract
+Organs are the ensemble of different cell types in a complex architectural milieu. It is well-known that progression through fate decisions sets up the complex cellular makeup and architecture of an organ, but how that same architecture may impact on cell fate is less clear. We sought to examine this by taking advantage of the unique capabilities of organoids as a tractable in vitro model to interrogate how fate and form interact during organ development.
+
+Screening methodological variations encountered in the literature revealed that common protocol adjustments, such as small molecule patterning and exposure to exogenous extracellular matrix, impacted various aspects of morphology, from macro structure to tissue architecture. We demonstrated that overall morphology is a predictor of tissue architecture and that perturbing morphology results in changes in cytoarchitecture. Vice-versa, perturbing cytoarchitecture by mechanically redistributing cells in a random spatial conformation resulted in a simplified overall morphology. We next examined the impact of these morphological perturbations on cell fate through integrated snRNA-seq and spatial transcriptomics within the phenotypic landscape. Regardless of the specific protocol, organoids with more complex morphology better mimicked in vivo human fetal brain development than organoids with simplified morphology. Further, organoids with perturbed tissue architecture displayed aberrant temporal progression in cell fate, with cells being intermingled in both space and time. Finally, imparting a simplified morphology through physical encapsulation led to disrupted tissue cytoarchitecture and a similar abnormal temporal progression. These data not only point to the importance of tissue morphology in organoid fidelity compared to in vivo, but also demonstrate that cells require proper spatial coordinates in order to undergo the proper temporal trajectory of events.
+
+## How to cite this matherial:
+10.5281/zenodo.8322350
